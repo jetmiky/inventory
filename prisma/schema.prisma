@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int              @id @default(autoincrement())
+  name            String
+  phone           String
+  email           String           @unique
+  address         String
+  password        String
+  inventoryUsages InventoryUsage[]
+}
+
+model InventoryType {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String
+  inventories Inventory[]
+}
+
+model InventoryBrand {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  inventories Inventory[]
+}
+
+model Inventory {
+  id           Int                    @id @default(autoincrement())
+  name         String
+  description  String
+  stock        Int
+  minimumStock Int
+  brand        InventoryBrand         @relation(fields: [brandId], references: [id])
+  brandId      Int
+  type         InventoryType          @relation(fields: [typeId], references: [id])
+  typeId       Int
+  usages       InventoryUsage[]
+  orderDetails InventoryOrderDetail[]
+}
+
+model InventoryUsage {
+  id          Int       @id @default(autoincrement())
+  quantity    Int
+  timestamp   DateTime
+  inventory   Inventory @relation(fields: [inventoryId], references: [id])
+  inventoryId Int
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+}
+
+model Supplier {
+  id      Int                     @id @default(autoincrement())
+  name    String                  @unique
+  phone   String
+  email   String
+  address String
+  methods SupplierPaymentMethod[]
+  orders  InventoryOrder[]
+}
+
+model SupplierPaymentMethod {
+  id         Int                     @id @default(autoincrement())
+  name       String
+  account    String
+  supplier   Supplier                @relation(fields: [supplierId], references: [id])
+  supplierId Int
+  payments   InventoryOrderPayment[]
+}
+
+model InventoryOrder {
+  id         Int                     @id @default(autoincrement())
+  discount   BigInt
+  tax        BigInt
+  timestamp  DateTime
+  supplier   Supplier                @relation(fields: [supplierId], references: [id])
+  supplierId Int
+  details    InventoryOrderDetail[]
+  payments   InventoryOrderPayment[]
+}
+
+model InventoryOrderPayment {
+  id                      Int                   @id @default(autoincrement())
+  total                   BigInt
+  timestamp               DateTime
+  order                   InventoryOrder        @relation(fields: [inventoryOrderId], references: [id])
+  inventoryOrderId        Int
+  method                  SupplierPaymentMethod @relation(fields: [supplierPaymentMethodId], references: [id])
+  supplierPaymentMethodId Int
+}
+
+model InventoryOrderDetail {
+  id               Int            @id @default(autoincrement())
+  quantity         Int
+  price            BigInt
+  order            InventoryOrder @relation(fields: [inventoryOrderId], references: [id])
+  inventoryOrderId Int
+  inventory        Inventory      @relation(fields: [inventoryId], references: [id])
+  inventoryId      Int
+}
