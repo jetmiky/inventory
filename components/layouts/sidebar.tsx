@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import { toggleSidebar } from '@/store/themeConfigSlice';
 import AnimateHeight from 'react-animate-height';
-import { IRootState } from '@/store';
+import type { IRootState } from '@/store';
 import { useState, useEffect } from 'react';
 import IconCaretsDown from '@/components/icon/icon-carets-down';
 import IconMenuDashboard from '@/components/icon/menu/icon-menu-dashboard';
@@ -49,7 +49,7 @@ const Sidebar = () => {
     };
 
     useEffect(() => {
-        const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+        const selector = document.querySelector(`.sidebar ul a[href="${window.location.pathname}"]`);
         if (selector) {
             selector.classList.add('active');
             const ul: any = selector.closest('ul.sub-menu');
@@ -78,7 +78,7 @@ const Sidebar = () => {
             const element = allLinks[i];
             element?.classList.remove('active');
         }
-        const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
+        const selector = document.querySelector(`.sidebar ul a[href="${window.location.pathname}"]`);
         selector?.classList.add('active');
     };
 
@@ -132,6 +132,90 @@ const Sidebar = () => {
                                         </li>
                                     </ul>
                                 </AnimateHeight>
+                            </li>
+
+                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                <IconMinus className="hidden h-5 w-4 flex-none" />
+                                <span>Master Data</span>
+                            </h2>
+
+                            <li className="nav-item">
+                                <Link href="/suppliers" className="group">
+                                    <div className="flex items-center">
+                                        <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Suppliers</span>
+                                    </div>
+                                </Link>
+                            </li>
+                            <li className="menu nav-item">
+                                <button type="button" className={`${currentMenu === 'inventories' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('inventories')}>
+                                    <div className="flex items-center">
+                                        <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
+                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventories</span>
+                                    </div>
+
+                                    <div className={currentMenu !== 'inventories' ? '-rotate-90 rtl:rotate-90' : ''}>
+                                        <IconCaretDown />
+                                    </div>
+                                </button>
+
+                                <AnimateHeight duration={300} height={currentMenu === 'inventories' ? 'auto' : 0}>
+                                    <ul className="sub-menu text-gray-500">
+                                        <li>
+                                            <Link href="/inventories">Inventories</Link>
+                                        </li>
+                                        <li>
+                                            <Link href="/inventory-types">Inventory Types</Link>
+                                        </li>
+                                        <li>
+                                            <Link href="/inventory-brands">Inventory Brands</Link>
+                                        </li>
+                                    </ul>
+                                </AnimateHeight>
+                            </li>
+
+                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                <IconMinus className="hidden h-5 w-4 flex-none" />
+                                <span>Manage Users</span>
+                            </h2>
+
+                            <li className="nav-item">
+                                <ul>
+                                    <li className="nav-item">
+                                        <Link href="/users" className="group">
+                                            <div className="flex items-center">
+                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Users</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                <IconMinus className="hidden h-5 w-4 flex-none" />
+                                <span>Inventories</span>
+                            </h2>
+
+                            <li className="nav-item">
+                                <ul>
+                                    <li className="nav-item">
+                                        <Link href="/inventory-orders" className="group">
+                                            <div className="flex items-center">
+                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventory Orders</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                    <li className="nav-item">
+                                        <Link href="/inventory-usages" className="group">
+                                            <div className="flex items-center">
+                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventory Usages</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                </ul>
                             </li>
 
                             <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
@@ -617,17 +701,17 @@ const Sidebar = () => {
                                             <AnimateHeight duration={300} height={errorSubMenu ? 'auto' : 0}>
                                                 <ul className="sub-menu text-gray-500">
                                                     <li>
-                                                        <a href="/pages/error404" target="_blank">
+                                                        <a href="/pages/error404" target="_blank" rel="noreferrer">
                                                             {t('404')}
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="/pages/error500" target="_blank">
+                                                        <a href="/pages/error500" target="_blank" rel="noreferrer">
                                                             {t('500')}
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="/pages/error503" target="_blank">
+                                                        <a href="/pages/error503" target="_blank" rel="noreferrer">
                                                             {t('503')}
                                                         </a>
                                                     </li>
