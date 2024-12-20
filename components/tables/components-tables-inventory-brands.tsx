@@ -1,33 +1,33 @@
 'use client';
 
-import type InventoryType from '@/interfaces/InventoryType';
+import type InventoryBrand from '@/interfaces/InventoryBrand';
 import IconPencil from '@/components/icon/icon-pencil';
 import IconPlus from '../icon/icon-plus';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
-import ComponentsModalInventoryTypes from '../components/modals/components-modal-inventory-types';
+import ComponentsModalInventoryBrands from '../components/modals/components-modal-inventory-brands';
 
-const ComponentsTablesInventoryTypes = () => {
-    const types: InventoryType[] = [
-        { id: 'IT001', name: 'Embroidery Threads' },
-        { id: 'IT002', name: 'Fabrics' },
-        { id: 'IT003', name: 'Materials' },
+const ComponentsTablesInventoryBrands = () => {
+    const brands: InventoryBrand[] = [
+        { id: 'IB001', name: 'Zebra Threads' },
+        { id: 'IB002', name: 'Top Threads' },
+        { id: 'IB003', name: 'Singer' },
     ];
 
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
 
     return (
         <div>
-            <ComponentsModalInventoryTypes isOpen={isModalOpen} onToggleOpen={setModalOpen} />
+            <ComponentsModalInventoryBrands isOpen={isModalOpen} onToggleOpen={setModalOpen} />
 
             <div className="flex justify-between items-center mb-7">
-                <h2 className="text-lg font-bold">Inventory Types</h2>
+                <h2 className="text-lg font-bold">Inventory Brands</h2>
 
                 <button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>
                     <IconPlus className="mr-4" />
-                    Add Inventory Type
+                    Add Inventory Brand
                 </button>
             </div>
 
@@ -41,7 +41,7 @@ const ComponentsTablesInventoryTypes = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {types.map((type) => {
+                        {brands.map((type) => {
                             return (
                                 <tr key={type.id}>
                                     <td>{type.id}</td>
@@ -68,4 +68,4 @@ const ComponentsTablesInventoryTypes = () => {
     );
 };
 
-export default ComponentsTablesInventoryTypes;
+export default ComponentsTablesInventoryBrands;
