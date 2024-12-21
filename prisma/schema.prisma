@@ -20,8 +20,8 @@ model User {
 }
 
 model Role {
-  id          Int        @id @default(autoincrement())
-  usid        String     @unique
+  id          Int    @id @default(autoincrement())
+  usid        String @unique
   name        String
   description String
   users       User[]
@@ -85,13 +85,21 @@ model SupplierPaymentMethod {
 
 model InventoryOrder {
   id         Int                     @id @default(autoincrement())
-  discount   BigInt
-  tax        BigInt
+  invoice    String
+  discount   BigInt                  @default(0)
+  tax        BigInt                  @default(0)
+  total      BigInt @default(0)
   timestamp  DateTime
+  status     InventoryOrderStatus @default(INCOMPLETE)
   supplier   Supplier                @relation(fields: [supplierId], references: [id])
   supplierId Int
   details    InventoryOrderDetail[]
   payments   InventoryOrderPayment[]
+}
+
+enum InventoryOrderStatus {
+  COMPLETED
+  INCOMPLETE
 }
 
 model InventoryOrderPayment {
