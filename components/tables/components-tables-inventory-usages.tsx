@@ -1,6 +1,5 @@
 'use client';
 
-import type InventoryUsage from '@/interfaces/InventoryUsage';
 import IconPencil from '@/components/icon/icon-pencil';
 import IconPlus from '../icon/icon-plus';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
@@ -8,24 +7,45 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalInventoryUsage from '../components/modals/components-modal-inventory-usage';
+import type { Inventory, Prisma, User } from '@prisma/client';
 
-const ComponentsTablesInventoryUsages = () => {
-    const usages: InventoryUsage[] = [
-        { id: 'IU001', inventory: 'Red Fabric', quantity: 2, staff: 'Yuke Sampurna', timestamp: '20240212' },
-        { id: 'IU002', inventory: 'Black Threads', quantity: 12, staff: 'Yuke Sampurna', timestamp: '20241212' },
-        { id: 'IU003', inventory: 'White Threads', quantity: 12, staff: 'Once Mekel', timestamp: '20241220' },
-    ];
+export type InventoryUsage = Prisma.InventoryUsageGetPayload<{ include: { inventory: true; user: true } }>;
 
+type ComponentsTablesInventoryUsagesProps = {
+    usages: InventoryUsage[];
+    inventories: Inventory[];
+    users: User[];
+};
+
+const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: ComponentsTablesInventoryUsagesProps) => {
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [usage, setUsage] = useState<InventoryUsage | null>(null);
+
+    const handleOpenModal = (usage: InventoryUsage | null) => {
+        setUsage(usage);
+        setModalOpen(true);
+    };
+
+    const handleUpdateUsages = (usage: InventoryUsage) => {
+        const index = usages.findIndex((t) => t.id === usage.id);
+        setUsage(usage);
+
+        if (index < 0) {
+            usages.push(usage);
+            return;
+        }
+
+        usages[index] = usage;
+    };
 
     return (
         <div>
-            <ComponentsModalInventoryUsage isOpen={isModalOpen} onToggleOpen={setModalOpen} />
+            <ComponentsModalInventoryUsage isOpen={isModalOpen} onToggleOpen={setModalOpen} usage={usage} onUpdateUsages={handleUpdateUsages} inventories={inventories} users={users} />
 
             <div className="flex justify-between items-center mb-7">
                 <h2 className="text-lg font-bold">Inventory Usages</h2>
 
-                <button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>
+                <button type="button" className="btn btn-primary" onClick={() => handleOpenModal(null)}>
                     <IconPlus className="mr-4" />
                     Record Usage
                 </button>
@@ -46,13 +66,13 @@ const ComponentsTablesInventoryUsages = () => {
                         {usages.map((usage) => {
                             return (
                                 <tr key={usage.id}>
-                                    <td>{usage.timestamp}</td>
-                                    <td>{usage.inventory}</td>
+                                    <td>{usage.timestamp.toString()}</td>
+                                    <td>{usage?.inventory.name}</td>
                                     <td>{usage.quantity}</td>
-                                    <td>{usage.staff}</td>
+                                    <td>{usage?.user.name}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => handleOpenModal(usage)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
