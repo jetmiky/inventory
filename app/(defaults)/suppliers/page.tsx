@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 const Suppliers = async () => {
     const suppliers = await prisma.supplier.findMany({
         orderBy: { id: 'asc' },
+        include: { methods: true },
     });
 
     return (

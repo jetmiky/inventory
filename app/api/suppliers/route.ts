@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         },
     });
 
-    return NextResponse.json(supplier, { status: 201 });
+    return NextResponse.json({ ...supplier, methods: [] }, { status: 201 });
 }
 
 export async function PUT(request: NextRequest) {
@@ -52,6 +52,7 @@ export async function PUT(request: NextRequest) {
             address: validation.data.address,
         },
         where: { id: validation.data.id },
+        include: { methods: true },
     });
 
     return NextResponse.json(supplier, { status: 200 });

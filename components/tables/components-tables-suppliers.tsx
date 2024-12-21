@@ -1,5 +1,6 @@
 'use client';
 
+import IconCreditCard from '@/components/icon/icon-credit-card';
 import IconPencil from '@/components/icon/icon-pencil';
 import IconPlus from '../icon/icon-plus';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
@@ -7,19 +8,28 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalSupplier from '../components/modals/components-modal-supplier';
-import type { Supplier } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import ComponentsModalSupplierPaymentMethod from '../components/modals/components-modal-supplier-payment-method';
+
+export type Supplier = Prisma.SupplierGetPayload<{ include: { methods: true } }>;
 
 type ComponentsTablesSuppliersProps = {
     suppliers: Supplier[];
 };
 
 const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps) => {
-    const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [isSupplierModalOpen, setSupplierModalOpen] = useState<boolean>(false);
+    const [isPaymentMethodModalOpen, setIsPaymentMethodModalOpen] = useState<boolean>(false);
     const [supplier, setSupplier] = useState<Supplier | null>(null);
 
-    const handleOpenModal = (supplier: Supplier | null) => {
+    const handleOpenSupplierModal = (supplier: Supplier | null) => {
         setSupplier(supplier);
-        setModalOpen(true);
+        setSupplierModalOpen(true);
+    };
+
+    const handleOpenPaymentMethodModal = (supplier: Supplier) => {
+        setSupplier(supplier);
+        setIsPaymentMethodModalOpen(true);
     };
 
     const handleUpdateSuppliers = (supplier: Supplier) => {
@@ -36,12 +46,13 @@ const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps
 
     return (
         <div>
-            <ComponentsModalSupplier isOpen={isModalOpen} onToggleOpen={setModalOpen} supplier={supplier} onUpdateSuppliers={handleUpdateSuppliers} />
+            <ComponentsModalSupplier isOpen={isSupplierModalOpen} onToggleOpen={setSupplierModalOpen} supplier={supplier} onUpdateSuppliers={handleUpdateSuppliers} />
+            <ComponentsModalSupplierPaymentMethod isOpen={isPaymentMethodModalOpen} onToggleOpen={setIsPaymentMethodModalOpen} supplier={supplier} />
 
             <div className="flex justify-between items-center mb-7">
                 <h2 className="text-lg font-bold">Suppliers</h2>
 
-                <button type="button" className="btn btn-primary" onClick={() => handleOpenModal(null)}>
+                <button type="button" className="btn btn-primary" onClick={() => handleOpenSupplierModal(null)}>
                     <IconPlus className="mr-4" />
                     Add Supplier
                 </button>
@@ -69,13 +80,18 @@ const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps
                                     <td>{supplier.email}</td>
                                     <td>{supplier.address}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
+                                        <Tippy content="Payment Methods">
+                                            <button type="button" onClick={() => handleOpenPaymentMethodModal(supplier)}>
+                                                <IconCreditCard className="ltr:mr-2 rtl:ml-2" />
+                                            </button>
+                                        </Tippy>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleOpenModal(supplier)}>
+                                            <button type="button" onClick={() => handleOpenSupplierModal(supplier)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
                                         <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => setSupplierModalOpen(true)}>
                                                 <IconTrashLines className="m-auto" />
                                             </button>
                                         </Tippy>
