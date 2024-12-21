@@ -2,7 +2,7 @@
 
 import IconX from '@/components/icon/icon-x';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
-import type { User } from '@prisma/client';
+import type { User } from '@/components/tables/components-tables-users';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
