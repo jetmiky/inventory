@@ -24,6 +24,7 @@ const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryType
 
     const handleUpdateTypes = (type: InventoryType) => {
         const index = types.findIndex((t) => t.id === type.id);
+        setType(type);
 
         if (index < 0) {
             types.push(type);

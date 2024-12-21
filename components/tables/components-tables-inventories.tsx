@@ -28,6 +28,7 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
 
     const handleUpdateInventories = (inventory: Inventory) => {
         const index = inventories.findIndex((b) => b.id === inventory.id);
+        setInventory(inventory);
 
         if (index < 0) {
             inventories.push(inventory);
