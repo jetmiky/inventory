@@ -90,8 +90,6 @@ const ComponentsModalInventoryBrand = ({ brand, isOpen, onToggleOpen, onUpdateBr
                                             <input id="name" type="text" placeholder="Inventory Brand Name" className="form-input" {...register('name')} />
                                         </div>
 
-                                        <input type="hidden" name="id" defaultValue={id} readOnly />
-
                                         <div className="mt-8 flex items-center justify-end">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard

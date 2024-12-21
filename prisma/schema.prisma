@@ -34,8 +34,8 @@ model Inventory {
   id           Int                    @id @default(autoincrement())
   name         String
   description  String
-  stock        Int
-  minimumStock Int
+  stock        Int                    @default(0)
+  minimumStock Int                    @default(1)
   brand        InventoryBrand         @relation(fields: [brandId], references: [id])
   brandId      Int
   type         InventoryType          @relation(fields: [typeId], references: [id])
