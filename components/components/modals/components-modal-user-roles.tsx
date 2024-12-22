@@ -72,17 +72,33 @@ const ComponentsModalUserRoles = ({ user, roles, isOpen, onToggleOpen }: Compone
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Assign User Roles</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
-                                        <div>
-                                            <label htmlFor="role">Assign New Role</label>
-                                            <select id="role" {...register('roleId')}>
+                                <div className="px-5 pt-3 pb-6">
+                                    <div className="mb-6">
+                                        <label htmlFor="name" className="text-sm">
+                                            Staff Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                            defaultValue={user?.name}
+                                            readOnly
+                                            disabled
+                                        />
+                                    </div>
+
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex justify-between items-end mb-6">
+                                        <div className="flex-grow">
+                                            <label htmlFor="role" className="text-sm">
+                                                Assign New Role
+                                            </label>
+                                            <select id="role" {...register('roleId')} className="form-select">
                                                 <option value="" disabled>
                                                     Choose ...
                                                 </option>
@@ -94,10 +110,11 @@ const ComponentsModalUserRoles = ({ user, roles, isOpen, onToggleOpen }: Compone
                                             </select>
                                         </div>
                                         <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                            {isSubmitting && (
+                                            {isSubmitting ? (
                                                 <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                            ) : (
+                                                <IconPlus className="mr-2" />
                                             )}
-                                            <IconPlus className="mr-2" />
                                             Assign Role
                                         </button>
                                     </form>

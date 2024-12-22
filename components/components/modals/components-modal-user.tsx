@@ -1,6 +1,7 @@
 'use client';
 
 import IconX from '@/components/icon/icon-x';
+import IconSave from '@/components/icon/icon-save';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
 import type { User } from '@/components/tables/components-tables-users';
 import React, { Fragment, useEffect, useState } from 'react';
@@ -85,44 +86,56 @@ const ComponentsModalUser = ({ user, isOpen, onToggleOpen, onUpdateUsers }: Comp
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Add User</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+                                <div className="px-5 pt-3 pb-6">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                                         <div>
-                                            <label htmlFor="name">Name</label>
-                                            <input id="name" type="text" placeholder="Staff Name" className="form-input" {...register('name')} />
+                                            <label htmlFor="name" className="text-sm">
+                                                Name
+                                            </label>
+                                            <input id="name" type="text" placeholder="Staff Name" className="form-input" {...register('name')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="phone">Phone</label>
-                                            <input id="phone" type="text" placeholder="Staff Phone" className="form-input" {...register('phone')} />
+                                            <label htmlFor="phone" className="text-sm">
+                                                Phone
+                                            </label>
+                                            <input id="phone" type="text" placeholder="Staff Phone" className="form-input" {...register('phone')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="email">Email</label>
-                                            <input id="email" type="email" placeholder="Staff Email" className="form-input" {...register('email')} />
+                                            <label htmlFor="email" className="text-sm">
+                                                Email
+                                            </label>
+                                            <input id="email" type="email" placeholder="Staff Email" className="form-input" {...register('email')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="address">Address</label>
-                                            <textarea id="address" placeholder="Staff Address" className="form-input" {...register('address')} />
+                                            <label htmlFor="address" className="text-sm">
+                                                Address
+                                            </label>
+                                            <textarea id="address" placeholder="Staff Address" className="form-input" {...register('address')} required />
                                         </div>
                                         {id === 0 && (
                                             <div>
-                                                <label htmlFor="password">Password</label>
-                                                <input type="password" placeholder="********" className="form-input" {...register('password')} />
+                                                <label htmlFor="password" className="text-sm">
+                                                    Default Password
+                                                </label>
+                                                <input type="password" placeholder="********" className="form-input" {...register('password')} required />
                                             </div>
                                         )}
 
-                                        <div className="mt-8 flex items-center justify-end">
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
                                                 Save
                                             </button>

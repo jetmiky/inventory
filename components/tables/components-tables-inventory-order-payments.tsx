@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import ComponentsModalInventoryOrderPayment from '../components/modals/components-modal-inventory-order-payment';
 import type { Prisma, SupplierPaymentMethod } from '@prisma/client';
 import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
+import formatThousands from 'format-thousands';
 
 export type InventoryOrderPayment = Prisma.InventoryOrderPaymentGetPayload<{ include: { method: true } }>;
 
@@ -57,32 +58,54 @@ const ComponentsTablesInventoryOrderPayments = ({ order, methods }: ComponentsTa
                         <tr>
                             <th>Date and Time</th>
                             <th>Payment Method</th>
-                            <th>Total</th>
+                            <th colSpan={2}>Total Payment</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {order?.payments?.map((payment) => {
-                            return (
-                                <tr key={payment.id}>
-                                    <td>{payment.timestamp.toString()}</td>
-                                    <td>{payment.method.name}</td>
-                                    <td>{payment.total}</td>
-                                    <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleOpenModal(payment)}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
+                        {order?.payments?.length ? (
+                            <>
+                                {order?.payments?.map((payment) => {
+                                    return (
+                                        <tr key={payment.id}>
+                                            <td className="max-w-1 whitespace-nowrap">{payment.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                            <td>{payment.method.name}</td>
+                                            <td className="max-w-1 whitespace-nowrap">Rp</td>
+                                            <td className="text-right">{formatThousands(payment.total, '.')}</td>
+                                            <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
+                                                <Tippy content="Edit">
+                                                    <button type="button" onClick={() => handleOpenModal(payment)}>
+                                                        <IconPencil className="ltr:mr-2 rtl:ml-2" />
+                                                    </button>
+                                                </Tippy>
+                                                <Tippy content="Delete">
+                                                    <button type="button" onClick={() => setModalOpen(true)}>
+                                                        <IconTrashLines className="m-auto" />
+                                                    </button>
+                                                </Tippy>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                <tr className="bg-gray-100 font-bold">
+                                    <td colSpan={2} className="text-right">
+                                        Total Payment
                                     </td>
+                                    <td className="max-w-1 whitespace-nowrap">Rp</td>
+                                    <td className="text-right">
+                                        {formatThousands(
+                                            order?.payments.reduce((total, payment) => total + Number(payment.total), 0),
+                                            '.',
+                                        )}
+                                    </td>
+                                    <td></td>
                                 </tr>
-                            );
-                        })}
+                            </>
+                        ) : (
+                            <tr>
+                                <td colSpan={4}>No order payment recorded yet.</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

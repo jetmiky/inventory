@@ -51,8 +51,8 @@ const ComponentsTablesInventoryBrands = ({ brands }: ComponentsTablesInventoryBr
                 <table className="table-hover">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Name</th>
+                            <th className="max-w-1 whitespace-nowrap">#</th>
+                            <th>Brand Name</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
@@ -60,7 +60,7 @@ const ComponentsTablesInventoryBrands = ({ brands }: ComponentsTablesInventoryBr
                         {brands.map((brand) => {
                             return (
                                 <tr key={brand.id}>
-                                    <td>{`IB00${brand.id}`}</td>
+                                    <td className="max-w-1 whitespace-nowrap">{`IB00${brand.id}`}</td>
                                     <td>{brand.name}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
                                         <Tippy content="Edit">

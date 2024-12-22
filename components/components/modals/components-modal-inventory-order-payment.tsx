@@ -12,6 +12,7 @@ import Select from 'react-select';
 import type { SupplierPaymentMethod } from '@prisma/client';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import IconSave from '@/components/icon/icon-save';
 
 const toast = withReactContent(Swal);
 
@@ -76,7 +77,7 @@ const ComponentsModalInventoryOrderPayment = ({ payment, order, methods, isOpen,
 
     useEffect(() => {
         setId(payment?.id || 0);
-        setValue('total', payment?.total.toString() || '0');
+        setValue('total', payment?.total.toString() || '');
         setValue('timestamp', payment?.timestamp.toISOString() || new Date().toISOString());
         setValue('methodId', payment?.supplierPaymentMethodId.toString() || '');
     }, [payment, setValue]);
@@ -95,39 +96,75 @@ const ComponentsModalInventoryOrderPayment = ({ payment, order, methods, isOpen,
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Add Inventory Order Payment</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <div>
-                                        <label htmlFor="supplier">Supplier</label>
-                                        <input type="text" className="form-input" disabled defaultValue={order?.supplier.name} readOnly />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="invoice">Invoice</label>
-                                        <input type="text" className="form-input" disabled defaultValue={order?.invoice} readOnly />
+                                <div className="px-5 pt-3 pb-6">
+                                    <div className="mb-6">
+                                        <div>
+                                            <label htmlFor="supplier" className="text-sm">
+                                                Supplier
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                                disabled
+                                                defaultValue={order?.supplier.name}
+                                                readOnly
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="invoice" className="text-sm">
+                                                Invoice
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                                disabled
+                                                defaultValue={order?.invoice}
+                                                readOnly
+                                            />
+                                        </div>
                                     </div>
 
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                                         <div>
-                                            <label htmlFor="methodId">Supplier Payment Method</label>
+                                            <label htmlFor="methodId" className="text-sm">
+                                                Supplier Payment Method
+                                            </label>
                                             <Controller
                                                 name="methodId"
                                                 control={control}
                                                 render={({ field: { value, onChange } }) => (
-                                                    <Select options={methodOptions} value={methodOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                    <Select
+                                                        options={methodOptions}
+                                                        value={methodOptions.find((opt) => opt.value === value)}
+                                                        onChange={(val) => onChange(val?.value)}
+                                                        className="text-sm"
+                                                        placeholder="Choose Payment Method ..."
+                                                        required
+                                                    />
                                                 )}
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="total">Total Payment</label>
-                                            <input id="total" type="number" placeholder="Inventory Description" className="form-input" {...register('total')} />
+                                            <label htmlFor="total" className="text-sm">
+                                                Total Payment
+                                            </label>
+                                            <div className="flex">
+                                                <div className="bg-[#eee] flex justify-center items-center ltr:rounded-l-md rtl:rounded-r-md px-3 font-semibold border ltr:border-r-0 rtl:border-l-0 border-white-light dark:border-[#17263c] dark:bg-[#1b2e4b]">
+                                                    Rp
+                                                </div>
+                                                <input id="total" type="number" placeholder="0.00" className="form-input ltr:rounded-l-none rtl:rounded-r-none" {...register('total')} required />
+                                            </div>
                                         </div>
                                         <div>
-                                            <label htmlFor="timestamp">Date and Time</label>
+                                            <label htmlFor="timestamp" className="text-sm">
+                                                Date and Time
+                                            </label>
                                             <Controller
                                                 name="timestamp"
                                                 control={control}
@@ -141,17 +178,21 @@ const ComponentsModalInventoryOrderPayment = ({ payment, order, methods, isOpen,
                                                         }}
                                                         className="form-input"
                                                         onChange={(dates, current) => onChange(current)}
+                                                        required
                                                     />
                                                 )}
                                             />
                                         </div>
-                                        <div className="mt-8 flex items-center justify-end">
+
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
                                                 Save
                                             </button>

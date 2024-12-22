@@ -9,6 +9,7 @@ import { useForm, Controller } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import Select from 'react-select';
+import IconSave from '@/components/icon/icon-save';
 
 const toast = withReactContent(Swal);
 
@@ -76,7 +77,7 @@ const ComponentsModalInventory = ({ inventory, types, brands, isOpen, onToggleOp
         setId(inventory?.id || 0);
         setValue('name', inventory?.name || '');
         setValue('description', inventory?.description || '');
-        setValue('minimumStock', inventory?.minimumStock.toString() || '0');
+        setValue('minimumStock', inventory?.minimumStock.toString() || '');
         setValue('brandId', inventory?.brandId.toString() || '');
         setValue('typeId', inventory?.typeId.toString() || '');
     }, [inventory, setValue]);
@@ -99,54 +100,80 @@ const ComponentsModalInventory = ({ inventory, types, brands, isOpen, onToggleOp
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Add Inventory</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+                                <div className="px-5 pt-3 pb-6">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                                         <div>
-                                            <label htmlFor="type">Inventory Type</label>
+                                            <label htmlFor="type" className="text-sm">
+                                                Inventory Type
+                                            </label>
                                             <Controller
                                                 name="typeId"
                                                 control={control}
                                                 render={({ field: { value, onChange } }) => (
-                                                    <Select options={typeOptions} value={typeOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                    <Select
+                                                        options={typeOptions}
+                                                        value={typeOptions.find((opt) => opt.value === value)}
+                                                        onChange={(val) => onChange(val?.value)}
+                                                        className="text-sm"
+                                                        placeholder="Choose Inventory Type ..."
+                                                        required
+                                                    />
                                                 )}
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="brand">Inventory Brand</label>
+                                            <label htmlFor="brand" className="text-sm">
+                                                Inventory Brand
+                                            </label>
                                             <Controller
                                                 name="brandId"
                                                 control={control}
                                                 render={({ field: { value, onChange } }) => (
-                                                    <Select options={brandOptions} value={brandOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                    <Select
+                                                        options={brandOptions}
+                                                        value={brandOptions.find((opt) => opt.value === value)}
+                                                        onChange={(val) => onChange(val?.value)}
+                                                        className="text-sm"
+                                                        placeholder="Choose Inventory Brand ..."
+                                                        required
+                                                    />
                                                 )}
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="name">Name</label>
-                                            <input id="name" type="text" placeholder="Inventory Name" className="form-input" {...register('name')} />
+                                            <label htmlFor="name" className="text-sm">
+                                                Name
+                                            </label>
+                                            <input id="name" type="text" placeholder="Inventory Name" className="form-input" {...register('name')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="description">Description</label>
-                                            <textarea id="description" placeholder="Inventory Description" className="form-input" {...register('description')} />
+                                            <label htmlFor="description" className="text-sm">
+                                                Description
+                                            </label>
+                                            <textarea id="description" placeholder="Inventory Description" className="form-input" {...register('description')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="minimumStock">Minimum Quantity in Stock</label>
-                                            <input id="minimumStock" type="number" placeholder="12" className="form-input" {...register('minimumStock')} />
+                                            <label htmlFor="minimumStock" className="text-sm">
+                                                Minimum Quantity in Stock
+                                            </label>
+                                            <input id="minimumStock" type="number" placeholder="12" className="form-input" {...register('minimumStock')} required />
                                         </div>
 
-                                        <div className="mt-8 flex items-center justify-end">
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
                                                 Save
                                             </button>

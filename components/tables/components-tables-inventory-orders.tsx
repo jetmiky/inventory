@@ -8,8 +8,8 @@ import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalInventoryOrder from '../components/modals/components-modal-inventory-order';
-import Link from 'next/link';
 import type { Prisma, Supplier } from '@prisma/client';
+import { useRouter } from 'next/navigation';
 
 export type InventoryOrder = Prisma.InventoryOrderGetPayload<{ include: { supplier: true } }>;
 
@@ -19,12 +19,17 @@ type ComponentsTablesInventoryOrdersProps = {
 };
 
 const ComponentsTablesInventoryOrders = ({ orders, suppliers }: ComponentsTablesInventoryOrdersProps) => {
+    const router = useRouter();
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [order, setOrder] = useState<InventoryOrder | null>(null);
 
     const handleOpenModal = (order: InventoryOrder | null) => {
         setOrder(order);
         setModalOpen(true);
+    };
+
+    const handleViewOrder = (order: InventoryOrder) => {
+        router.push(`/inventory-orders/${order.id}`);
     };
 
     const handleUpdateOrders = (order: InventoryOrder) => {
@@ -57,42 +62,55 @@ const ComponentsTablesInventoryOrders = ({ orders, suppliers }: ComponentsTables
                     <thead>
                         <tr>
                             <th>Invoice</th>
-                            <th>Date and Time</th>
+                            <th>Invoice Date</th>
                             <th>Supplier</th>
-                            <th>Total Price</th>
+                            <th colSpan={2}>Total Price</th>
                             <th>Payment Status</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map((order) => {
-                            return (
-                                <tr key={order.id}>
-                                    <td>{order.invoice}</td>
-                                    <td>{order.timestamp.toString()}</td>
-                                    <td>{order.supplier.name}</td>
-                                    <td>{order.total}</td>
-                                    <td>{order.status}</td>
-                                    <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
-                                        <Tippy content="View">
-                                            <Link href={`/inventory-orders/${order.id}`}>
-                                                <IconEye className="ltr:mr-2 rtl:ml-2" />
-                                            </Link>
-                                        </Tippy>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleOpenModal(order)}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        {orders.length ? (
+                            orders.map((order) => {
+                                return (
+                                    <tr key={order.id}>
+                                        <td>{order.invoice}</td>
+                                        <td>{order.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                        <td>{order.supplier.name}</td>
+                                        <td className="max-w-1 whitespace-nowrap">Rp</td>
+                                        <td className="text-right">{order.total}</td>
+                                        <td>
+                                            {order.status === 'INCOMPLETE' ? (
+                                                <span className="badge bg-danger rounded-lg px-4 py-1 shadow-lg">INCOMPLETE</span>
+                                            ) : (
+                                                <span className="badge bg-primary rounded-lg px-4 py-1 shadow-lg">COMPLETED</span>
+                                            )}
+                                        </td>
+                                        <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
+                                            <Tippy content="View">
+                                                <button type="button" onClick={() => handleViewOrder(order)}>
+                                                    <IconEye className="ltr:mr-2 rtl:ml-2" />
+                                                </button>
+                                            </Tippy>
+                                            <Tippy content="Edit">
+                                                <button type="button" onClick={() => handleOpenModal(order)}>
+                                                    <IconPencil className="ltr:mr-2 rtl:ml-2" />
+                                                </button>
+                                            </Tippy>
+                                            <Tippy content="Delete">
+                                                <button type="button" onClick={() => setModalOpen(true)}>
+                                                    <IconTrashLines className="m-auto" />
+                                                </button>
+                                            </Tippy>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={6}>No inventory order recorded yet.</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

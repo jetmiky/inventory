@@ -55,12 +55,12 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
                 <table className="table-hover">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th className="max-w-1 whitespace-nowrap">#</th>
                             <th>Type</th>
                             <th>Brand</th>
                             <th>Name</th>
                             <th>Description</th>
-                            <th>Minimum Stock</th>
+                            <th className="max-w-1 whitespace-nowrap">Minimum Stock</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
@@ -68,12 +68,12 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
                         {inventories.map((inventory) => {
                             return (
                                 <tr key={inventory.id}>
-                                    <td>{`IN00${inventory.id}`}</td>
+                                    <td className="max-w-1 whitespace-nowrap">{`IN00${inventory.id}`}</td>
                                     <td>{inventory.type.name}</td>
                                     <td>{inventory.brand.name}</td>
                                     <td>{inventory.name}</td>
                                     <td>{inventory.description}</td>
-                                    <td>{inventory.minimumStock}</td>
+                                    <td className="text-center max-w-1 whitespace-nowrap">{inventory.minimumStock}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
                                         <Tippy content="Edit">
                                             <button type="button" onClick={() => handleOpenModal(inventory)}>

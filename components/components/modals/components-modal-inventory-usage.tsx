@@ -10,6 +10,7 @@ import withReactContent from 'sweetalert2-react-content';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import IconSave from '@/components/icon/icon-save';
 
 const toast = withReactContent(Swal);
 
@@ -100,41 +101,62 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Record Inventory Usage</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+                                <div className="px-5 pt-3 pb-6">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                                         <div>
-                                            <label htmlFor="inventory">Inventory</label>
+                                            <label htmlFor="inventory" className="text-sm">
+                                                Inventory
+                                            </label>
                                             <Controller
                                                 name="inventoryId"
                                                 control={control}
                                                 render={({ field: { value, onChange } }) => (
-                                                    <Select options={inventoryOptions} value={inventoryOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                    <Select
+                                                        options={inventoryOptions}
+                                                        value={inventoryOptions.find((opt) => opt.value === value)}
+                                                        onChange={(val) => onChange(val?.value)}
+                                                        className="text-sm"
+                                                        placeholder="Choose Inventory ..."
+                                                        required
+                                                    />
                                                 )}
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="brand">Staff</label>
+                                            <label htmlFor="brand" className="text-sm">
+                                                Staff
+                                            </label>
                                             <Controller
                                                 name="userId"
                                                 control={control}
                                                 render={({ field: { value, onChange } }) => (
-                                                    <Select options={userOptions} value={userOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                    <Select
+                                                        options={userOptions}
+                                                        value={userOptions.find((opt) => opt.value === value)}
+                                                        onChange={(val) => onChange(val?.value)}
+                                                        placeholder="Choose staff ..."
+                                                        className="text-sm"
+                                                    />
                                                 )}
                                             />
                                         </div>
 
                                         <div>
-                                            <label htmlFor="quantity">Quantity</label>
-                                            <input id="quantity" type="number" placeholder="Quantity" className="form-input" {...register('quantity')} />
+                                            <label htmlFor="quantity" className="text-sm">
+                                                Quantity
+                                            </label>
+                                            <input id="quantity" type="number" placeholder="10" className="form-input" {...register('quantity')} />
                                         </div>
                                         <div>
-                                            <label htmlFor="timestamp">Date and Time</label>
+                                            <label htmlFor="timestamp" className="text-sm">
+                                                Date and Time
+                                            </label>
                                             <Controller
                                                 name="timestamp"
                                                 control={control}
@@ -152,13 +174,16 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
                                                 )}
                                             />
                                         </div>
-                                        <div className="mt-8 flex items-center justify-end">
+
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
                                                 Save
                                             </button>

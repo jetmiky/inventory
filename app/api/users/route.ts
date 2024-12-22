@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
             address: validation.data.address,
             password: validation.data.password,
         },
+        include: { roles: true },
     });
 
     return NextResponse.json(user, { status: 201 });
@@ -51,6 +52,7 @@ export async function PUT(request: NextRequest) {
             address: validation.data.address,
         },
         where: { id: validation.data.id },
+        include: { roles: true },
     });
 
     return NextResponse.json(user, { status: 200 });

@@ -57,34 +57,40 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
                         <tr>
                             <th>Date and Time</th>
                             <th>Inventory</th>
-                            <th>Quantity</th>
+                            <th className="max-w-1 whitespace-nowrap">Quantity</th>
                             <th>Staff</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {usages.map((usage) => {
-                            return (
-                                <tr key={usage.id}>
-                                    <td>{usage.timestamp.toString()}</td>
-                                    <td>{usage?.inventory.name}</td>
-                                    <td>{usage.quantity}</td>
-                                    <td>{usage?.user.name}</td>
-                                    <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleOpenModal(usage)}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                        {usages.length ? (
+                            usages.map((usage) => {
+                                return (
+                                    <tr key={usage.id}>
+                                        <td className="max-w-1 whitespace-nowrap">{usage.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                        <td>{usage?.inventory.name}</td>
+                                        <td className="text-center max-w-1 whitespace-nowrap">{usage.quantity}</td>
+                                        <td>{usage?.user.name}</td>
+                                        <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
+                                            <Tippy content="Edit">
+                                                <button type="button" onClick={() => handleOpenModal(usage)}>
+                                                    <IconPencil className="ltr:mr-2 rtl:ml-2" />
+                                                </button>
+                                            </Tippy>
+                                            <Tippy content="Delete">
+                                                <button type="button" onClick={() => setModalOpen(true)}>
+                                                    <IconTrashLines className="m-auto" />
+                                                </button>
+                                            </Tippy>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan={5}>No inventory usage recorded yet.</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

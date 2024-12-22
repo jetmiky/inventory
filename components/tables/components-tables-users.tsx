@@ -80,8 +80,22 @@ const ComponentsTablesUsers = ({ users, roles }: ComponentsTablesUsersProps) => 
                                     <td>{user.name}</td>
                                     <td>{user.phone}</td>
                                     <td>{user.email}</td>
-                                    <td>{user.email}</td>
-                                    <td>{user.email}</td>
+                                    <td>
+                                        {user?.roles?.length
+                                            ? user.roles.map((role) => (
+                                                  <span key={role.id} className="block mb-1">
+                                                      {role.name}
+                                                  </span>
+                                              ))
+                                            : '-'}
+                                    </td>
+                                    <td>
+                                        {user.deletedAt ? (
+                                            <span className="badge bg-danger rounded-lg px-4 py-1 shadow-lg">Inactive</span>
+                                        ) : (
+                                            <span className="badge bg-primary rounded-lg px-4 py-1 shadow-lg">Active</span>
+                                        )}
+                                    </td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
                                         <Tippy content="Roles">
                                             <button type="button" onClick={() => handleOpenRoleModal(user)}>

@@ -7,6 +7,7 @@ import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import IconSave from '@/components/icon/icon-save';
 
 const toast = withReactContent(Swal);
 
@@ -22,7 +23,7 @@ type InventoryOrderDiscountForm = {
 };
 
 const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: ComponentsModalInventoryOrderDiscountProps) => {
-    const { register, handleSubmit, setValue, control } = useForm<InventoryOrderDiscountForm>();
+    const { register, handleSubmit, setValue } = useForm<InventoryOrderDiscountForm>();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     const handleFormSubmit = async (data: InventoryOrderDiscountForm) => {
@@ -75,30 +76,59 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Edit Taxes and Discount</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
+                                <div className="px-5 pt-3 pb-6">
+                                    <div className="mb-6">
+                                        <label htmlFor="invoice" className="text-sm">
+                                            Invoice
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                            disabled
+                                            defaultValue={order?.invoice}
+                                            readOnly
+                                        />
+                                    </div>
+
                                     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
                                         <div>
-                                            <label htmlFor="tax">Total Taxes</label>
-                                            <input id="tax" type="number" placeholder="0.00" className="form-input" {...register('tax')} />
+                                            <label htmlFor="tax" className="text-sm">
+                                                Total Taxes
+                                            </label>
+                                            <div className="flex">
+                                                <div className="bg-[#eee] flex justify-center items-center ltr:rounded-l-md rtl:rounded-r-md px-3 font-semibold border ltr:border-r-0 rtl:border-l-0 border-white-light dark:border-[#17263c] dark:bg-[#1b2e4b]">
+                                                    Rp
+                                                </div>
+                                                <input id="tax" type="number" placeholder="0.00" className="form-input ltr:rounded-l-none rtl:rounded-r-none" {...register('tax')} required />
+                                            </div>
                                         </div>
                                         <div>
-                                            <label htmlFor="discount">Total Discounts</label>
-                                            <input id="discount" type="number" placeholder="0.00" className="form-input" {...register('discount')} />
+                                            <label htmlFor="discount" className="text-sm">
+                                                Total Discounts
+                                            </label>
+                                            <div className="flex">
+                                                <div className="bg-[#eee] flex justify-center items-center ltr:rounded-l-md rtl:rounded-r-md px-3 font-semibold border ltr:border-r-0 rtl:border-l-0 border-white-light dark:border-[#17263c] dark:bg-[#1b2e4b]">
+                                                    Rp
+                                                </div>
+                                                <input id="discount" type="number" placeholder="0.00" className="form-input ltr:rounded-l-none rtl:rounded-r-none" {...register('discount')} required />
+                                            </div>
                                         </div>
 
-                                        <div className="mt-8 flex items-center justify-end">
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
                                                 Save
                                             </button>

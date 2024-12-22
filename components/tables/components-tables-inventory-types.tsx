@@ -51,8 +51,9 @@ const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryType
                 <table className="table-hover">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th className="max-w-1 whitespace-nowrap">#</th>
                             <th>Name</th>
+                            <th>Description</th>
                             <th className="text-center">Action</th>
                         </tr>
                     </thead>
@@ -60,8 +61,9 @@ const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryType
                         {types.map((type) => {
                             return (
                                 <tr key={type.id}>
-                                    <td>{`IT00${type.id}`}</td>
+                                    <td className="max-w-1 whitespace-nowrap">{`IT00${type.id}`}</td>
                                     <td>{type.name}</td>
+                                    <td>{type.description}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
                                         <Tippy content="Edit">
                                             <button type="button" onClick={() => handleOpenModal(type)}>

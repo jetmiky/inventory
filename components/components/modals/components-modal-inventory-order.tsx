@@ -11,6 +11,7 @@ import withReactContent from 'sweetalert2-react-content';
 import Select from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import IconSave from '@/components/icon/icon-save';
 
 const toast = withReactContent(Swal);
 
@@ -93,30 +94,43 @@ const ComponentsModalInventoryOrder = ({ order, suppliers, isOpen, onToggleOpen,
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Add Inventory Order</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+                                <div className="px-5 pt-3 pb-6">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                                         <div>
-                                            <label htmlFor="supplier">Supplier</label>
+                                            <label htmlFor="supplier" className="text-sm">
+                                                Supplier
+                                            </label>
                                             <Controller
                                                 name="supplierId"
                                                 control={control}
                                                 render={({ field: { value, onChange } }) => (
-                                                    <Select options={supplierOptions} value={supplierOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                    <Select
+                                                        options={supplierOptions}
+                                                        value={supplierOptions.find((opt) => opt.value === value)}
+                                                        onChange={(val) => onChange(val?.value)}
+                                                        className="text-sm"
+                                                        placeholder="Choose supplier ..."
+                                                        required
+                                                    />
                                                 )}
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="invoice">Invoice Number</label>
-                                            <input id="invoice" type="text" placeholder="Invoice Number" className="form-input" {...register('invoice')} />
+                                            <label htmlFor="invoice" className="text-sm">
+                                                Invoice Number
+                                            </label>
+                                            <input id="invoice" type="text" placeholder="Invoice Number" className="form-input" {...register('invoice')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="timestamp">Date and Time</label>
+                                            <label htmlFor="timestamp" className="text-sm">
+                                                Invoice Date
+                                            </label>
                                             <Controller
                                                 name="timestamp"
                                                 control={control}
@@ -130,18 +144,21 @@ const ComponentsModalInventoryOrder = ({ order, suppliers, isOpen, onToggleOpen,
                                                         }}
                                                         className="form-input"
                                                         onChange={(dates, current) => onChange(current)}
+                                                        required
                                                     />
                                                 )}
                                             />
                                         </div>
 
-                                        <div className="mt-8 flex items-center justify-end">
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
                                                 Save
                                             </button>
