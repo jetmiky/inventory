@@ -62,7 +62,7 @@ const ComponentsTablesInventoryOrderPayments = ({ order, methods }: ComponentsTa
                         </tr>
                     </thead>
                     <tbody>
-                        {order?.payments.map((payment) => {
+                        {order?.payments?.map((payment) => {
                             return (
                                 <tr key={payment.id}>
                                     <td>{payment.timestamp.toString()}</td>

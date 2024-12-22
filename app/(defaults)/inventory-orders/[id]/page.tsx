@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Inventory Order',
 };
 
-export type InventoryOrder = Prisma.InventoryOrderGetPayload<{ include: { supplier: true; payments: { include: { method: true } } } }>;
+export type InventoryOrder = Prisma.InventoryOrderGetPayload<{ include: { supplier: true; details: { include: { inventory: true } }; payments: { include: { method: true } } } }>;
 
 type InventoryOrderPageProps = {
     params: Promise<{ id: string }>;
@@ -20,7 +20,11 @@ const InventoryOrder = async ({ params }: InventoryOrderPageProps) => {
 
     const order = await prisma.inventoryOrder.findFirst({
         where: { id: Number.parseInt(id) },
-        include: { supplier: true, payments: { include: { method: true } } },
+        include: { supplier: true, details: { include: { inventory: true } }, payments: { include: { method: true } } },
+    });
+
+    const inventories = await prisma.inventory.findMany({
+        orderBy: { name: 'asc' },
     });
 
     const methods = await prisma.supplierPaymentMethod.findMany({
@@ -34,7 +38,7 @@ const InventoryOrder = async ({ params }: InventoryOrderPageProps) => {
             <div className="mb-5 flex items-center justify-center">
                 <div className="w-full rounded-lg border border-white-light bg-white shadow-[4px_6px_10px_-3px_#bfc9d4] dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:shadow-none">
                     <div className="px-6 py-7">
-                        <ComponentsTablesInventoryOrderDetails order={order} />
+                        <ComponentsTablesInventoryOrderDetails order={order} inventories={inventories} />
                     </div>
                 </div>
             </div>
