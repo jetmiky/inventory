@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import ComponentsModalInventoryOrder from '../components/modals/components-modal-inventory-order';
 import type { Prisma, Supplier } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import formatThousands from 'format-thousands';
 
 export type InventoryOrder = Prisma.InventoryOrderGetPayload<{ include: { supplier: true } }>;
 
@@ -78,7 +79,7 @@ const ComponentsTablesInventoryOrders = ({ orders, suppliers }: ComponentsTables
                                         <td>{order.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
                                         <td>{order.supplier.name}</td>
                                         <td className="max-w-1 whitespace-nowrap">Rp</td>
-                                        <td className="text-right">{order.total}</td>
+                                        <td className="text-right">{formatThousands(order.total || 0, '.')}</td>
                                         <td>
                                             {order.status === 'INCOMPLETE' ? (
                                                 <span className="badge bg-danger rounded-lg px-4 py-1 shadow-lg">INCOMPLETE</span>

@@ -21,7 +21,13 @@ const updateInventoryOrderPaymentSchema = z.object({
     supplierPaymentMethodId: z.number().min(1).max(191),
 });
 
+const deleteInventoryOrderPaymentSchema = z.object({
+    id: z.number().min(1),
+});
+
 export async function POST(request: NextRequest) {
+    // TODO: Update order status
+
     const body = await request.json();
     const validation = createInventoryOrderPayment.safeParse(body);
 
@@ -44,6 +50,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+    // TODO: Update order status
+
     const body = await request.json();
     const validation = updateInventoryOrderPaymentSchema.safeParse(body);
 
@@ -61,4 +69,17 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json(payment, { status: 200 });
+}
+
+export async function DELETE(request: NextRequest) {
+    // TODO: Update order status
+
+    const body = await request.json();
+    const validation = deleteInventoryOrderPaymentSchema.safeParse(body);
+
+    if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    await prisma.inventoryOrderPayment.delete({ where: { id: validation.data.id } });
+
+    return NextResponse.json({ message: 'Supplier deleted successfully', success: true }, { status: 200 });
 }
