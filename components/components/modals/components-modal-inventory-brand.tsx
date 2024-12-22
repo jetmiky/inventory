@@ -2,41 +2,43 @@
 
 import IconX from '@/components/icon/icon-x';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
+import type { InventoryBrand } from '@prisma/client';
 import React, { Fragment, useEffect, useState } from 'react';
-import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 const toast = withReactContent(Swal);
 
-type ComponentsModalInventoryOrderDiscountProps = {
-    order: InventoryOrder | null;
+type ComponentsModalInventoryBrandProps = {
+    brand: InventoryBrand | null;
     isOpen: boolean;
     onToggleOpen: (state: boolean) => void;
+    onUpdateBrands: (brand: InventoryBrand) => void;
 };
 
-type InventoryOrderDiscountForm = {
-    tax: string;
-    discount: string;
+type InventoryBrandForm = {
+    name: string;
 };
 
-const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: ComponentsModalInventoryOrderDiscountProps) => {
-    const { register, handleSubmit, setValue, control } = useForm<InventoryOrderDiscountForm>();
+const ComponentsModalInventoryBrand = ({ brand, isOpen, onToggleOpen, onUpdateBrands }: ComponentsModalInventoryBrandProps) => {
+    const [id, setId] = useState<number>(brand?.id || 0);
+    const { register, handleSubmit, setValue } = useForm<InventoryBrandForm>();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    const handleFormSubmit = async (data: InventoryOrderDiscountForm) => {
+    const handleFormSubmit = async (data: InventoryBrandForm) => {
         try {
             setIsSubmitting(true);
 
-            const body = { id: order?.id, tax: Number.parseInt(data.tax), discount: Number.parseInt(data.discount) };
+            const method = id === 0 ? 'POST' : 'PUT';
+            const body = { id, ...data };
 
-            const response = await fetch('/api/inventory-orders', { method: 'PUT', body: JSON.stringify(body) });
-            const updatedOrder: InventoryOrder = await response.json();
-            console.log(updatedOrder);
+            const response = await fetch('/api/brands', { method, body: JSON.stringify(body) });
+            const brand: InventoryBrand = await response.json();
+            onUpdateBrands(brand);
 
             toast.fire({
-                title: 'Successfuly edited tax and discount.',
+                title: method === 'POST' ? 'Successfuly added new brand.' : 'Sucessfully edited brand',
                 toast: true,
                 position: 'bottom-right',
                 showConfirmButton: false,
@@ -61,9 +63,9 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
     };
 
     useEffect(() => {
-        setValue('tax', order?.tax.toString() || '');
-        setValue('discount', order?.discount.toString() || '');
-    }, [order, setValue]);
+        setId(brand?.id || 0);
+        setValue('name', brand?.name || '');
+    }, [brand, setValue]);
 
     return (
         <div>
@@ -76,7 +78,7 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
                                 <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
-                                    <h5 className="text-lg font-bold">Edit Taxes and Discount</h5>
+                                    <h5 className="text-lg font-bold">Add Inventory Brand</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
@@ -84,12 +86,8 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
                                 <div className="p-5">
                                     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
                                         <div>
-                                            <label htmlFor="tax">Total Taxes</label>
-                                            <input id="tax" type="number" placeholder="0.00" className="form-input" {...register('tax')} />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="discount">Total Discounts</label>
-                                            <input id="discount" type="number" placeholder="0.00" className="form-input" {...register('discount')} />
+                                            <label htmlFor="name">Name</label>
+                                            <input id="name" type="text" placeholder="Inventory Brand Name" className="form-input" {...register('name')} />
                                         </div>
 
                                         <div className="mt-8 flex items-center justify-end">
@@ -114,4 +112,4 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
     );
 };
 
-export default ComponentsModalInventoryOrderDiscount;
+export default ComponentsModalInventoryBrand;

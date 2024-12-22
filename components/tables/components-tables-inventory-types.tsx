@@ -1,31 +1,47 @@
 'use client';
 
-import type InventoryType from '@/interfaces/InventoryType';
 import IconPencil from '@/components/icon/icon-pencil';
 import IconPlus from '../icon/icon-plus';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
+import type { InventoryType } from '@prisma/client';
 import ComponentsModalInventoryTypes from '../components/modals/components-modal-inventory-types';
 
-const ComponentsTablesInventoryTypes = () => {
-    const types: InventoryType[] = [
-        { id: 'IT001', name: 'Embroidery Threads' },
-        { id: 'IT002', name: 'Fabrics' },
-        { id: 'IT003', name: 'Materials' },
-    ];
+type ComponentsTablesInventoryTypesProps = {
+    types: InventoryType[];
+};
 
+const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryTypesProps) => {
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [type, setType] = useState<InventoryType | null>(null);
+
+    const handleOpenModal = (type: InventoryType | null) => {
+        setType(type);
+        setModalOpen(true);
+    };
+
+    const handleUpdateTypes = (type: InventoryType) => {
+        const index = types.findIndex((t) => t.id === type.id);
+        setType(type);
+
+        if (index < 0) {
+            types.push(type);
+            return;
+        }
+
+        types[index] = type;
+    };
 
     return (
         <div>
-            <ComponentsModalInventoryTypes isOpen={isModalOpen} onToggleOpen={setModalOpen} />
+            <ComponentsModalInventoryTypes isOpen={isModalOpen} onToggleOpen={setModalOpen} onUpdateTypes={handleUpdateTypes} type={type} />
 
             <div className="flex justify-between items-center mb-7">
                 <h2 className="text-lg font-bold">Inventory Types</h2>
 
-                <button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>
+                <button type="button" className="btn btn-primary" onClick={() => handleOpenModal(null)}>
                     <IconPlus className="mr-4" />
                     Add Inventory Type
                 </button>
@@ -44,11 +60,11 @@ const ComponentsTablesInventoryTypes = () => {
                         {types.map((type) => {
                             return (
                                 <tr key={type.id}>
-                                    <td>{type.id}</td>
+                                    <td>{`IT00${type.id}`}</td>
                                     <td>{type.name}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => handleOpenModal(type)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>

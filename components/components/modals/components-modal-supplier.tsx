@@ -1,14 +1,78 @@
 'use client';
+
 import IconX from '@/components/icon/icon-x';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
-import React, { Fragment } from 'react';
+import type { Supplier } from '@/components/tables/components-tables-suppliers';
+import React, { Fragment, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 type ComponentsModalSuppllierProps = {
+    supplier: Supplier | null;
     isOpen: boolean;
     onToggleOpen: (state: boolean) => void;
+    onUpdateSuppliers: (supplier: Supplier) => void;
 };
 
-const ComponentsModalSupplier = ({ isOpen, onToggleOpen }: ComponentsModalSuppllierProps) => {
+type SupplierForm = {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+};
+
+const ComponentsModalSupplier = ({ supplier, isOpen, onToggleOpen, onUpdateSuppliers }: ComponentsModalSuppllierProps) => {
+    const [id, setId] = useState<number>(supplier?.id || 0);
+    const { register, handleSubmit, setValue } = useForm<SupplierForm>();
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    const handleFormSubmit = async (data: SupplierForm) => {
+        try {
+            setIsSubmitting(true);
+
+            const method = id === 0 ? 'POST' : 'PUT';
+            const body = { id, ...data };
+
+            const response = await fetch('/api/suppliers', { method, body: JSON.stringify(body) });
+            const supplier: Supplier = await response.json();
+            onUpdateSuppliers(supplier);
+
+            toast.fire({
+                title: method === 'POST' ? 'Successfuly added new supplier.' : 'Sucessfully edited supplier',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            console.error(error);
+
+            toast.fire({
+                title: 'Failed.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } finally {
+            setIsSubmitting(false);
+            onToggleOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        setId(supplier?.id || 0);
+        setValue('name', supplier?.name || '');
+        setValue('phone', supplier?.phone || '');
+        setValue('email', supplier?.email || '');
+        setValue('address', supplier?.address || '');
+    }, [supplier, setValue]);
+
     return (
         <div>
             <Transition appear show={isOpen} as={Fragment}>
@@ -26,32 +90,36 @@ const ComponentsModalSupplier = ({ isOpen, onToggleOpen }: ComponentsModalSuppll
                                     </button>
                                 </div>
                                 <div className="p-5">
-                                    <form className="space-y-5">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
                                         <div>
                                             <label htmlFor="name">Name</label>
-                                            <input id="name" type="text" placeholder="Supplier Name" className="form-input" />
+                                            <input id="name" type="text" placeholder="Supplier Name" className="form-input" {...register('name')} />
                                         </div>
                                         <div>
                                             <label htmlFor="phone">Phone</label>
-                                            <input id="phone" type="text" placeholder="Supplier Phone" className="form-input" />
+                                            <input id="phone" type="text" placeholder="Supplier Phone" className="form-input" {...register('phone')} />
                                         </div>
                                         <div>
                                             <label htmlFor="email">Email</label>
-                                            <input id="email" type="email" placeholder="Supplier Email" className="form-input" />
+                                            <input id="email" type="email" placeholder="Supplier Email" className="form-input" {...register('email')} />
                                         </div>
                                         <div>
                                             <label htmlFor="address">Address</label>
-                                            <input id="address" type="text" placeholder="Supplier Address" className="form-input" />
+                                            <textarea id="address" placeholder="Supplier Address" className="form-input" {...register('address')} />
+                                        </div>
+
+                                        <div className="mt-8 flex items-center justify-end">
+                                            <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
+                                                Discard
+                                            </button>
+                                            <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                {isSubmitting && (
+                                                    <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                )}
+                                                Save
+                                            </button>
                                         </div>
                                     </form>
-                                    <div className="mt-8 flex items-center justify-end">
-                                        <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
-                                            Discard
-                                        </button>
-                                        <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                            Save
-                                        </button>
-                                    </div>
                                 </div>
                             </DialogPanel>
                         </div>

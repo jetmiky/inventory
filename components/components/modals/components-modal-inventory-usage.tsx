@@ -1,14 +1,95 @@
 'use client';
 import IconX from '@/components/icon/icon-x';
+import type { InventoryUsage } from '@/components/tables/components-tables-inventory-usages';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
-import React, { Fragment } from 'react';
+import type { Inventory, User } from '@prisma/client';
+import React, { Fragment, useEffect, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import Select from 'react-select';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+
+const toast = withReactContent(Swal);
 
 type ComponentsModalInventoryUsageProps = {
+    usage: InventoryUsage | null;
+    inventories: Inventory[];
+    users: User[];
     isOpen: boolean;
     onToggleOpen: (state: boolean) => void;
+    onUpdateUsages: (usage: InventoryUsage) => void;
 };
 
-const ComponentsModalInventoryUsage = ({ isOpen, onToggleOpen }: ComponentsModalInventoryUsageProps) => {
+type InventoryUsageForm = {
+    quantity: string;
+    timestamp: string;
+    inventoryId: string;
+    userId: string;
+};
+
+const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUsages, inventories, users }: ComponentsModalInventoryUsageProps) => {
+    const [id, setId] = useState<number>(usage?.id || 0);
+    const { register, handleSubmit, setValue, control } = useForm<InventoryUsageForm>();
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [inventoryOptions, setInventoryOptions] = useState<{ value: string; label: string }[]>([]);
+    const [userOptions, setUserOptions] = useState<{ value: string; label: string }[]>([]);
+
+    const handleFormSubmit = async (data: InventoryUsageForm) => {
+        try {
+            setIsSubmitting(true);
+
+            const method = id === 0 ? 'POST' : 'PUT';
+            const body = { id, ...data, inventoryId: Number.parseInt(data.inventoryId), userId: Number.parseInt(data.userId), quantity: Number.parseInt(data.quantity) };
+
+            const response = await fetch('/api/inventory-usages', { method, body: JSON.stringify(body) });
+            const usage: InventoryUsage = await response.json();
+            usage.timestamp = new Date(usage.timestamp);
+
+            onUpdateUsages(usage);
+
+            toast.fire({
+                title: method === 'POST' ? 'Successfuly added record inventory usage.' : 'Sucessfully edited inventory usage',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            console.error(error);
+
+            toast.fire({
+                title: 'Failed.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } finally {
+            setIsSubmitting(false);
+            onToggleOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        setId(usage?.id || 0);
+        setValue('quantity', usage?.quantity.toString() || '');
+        setValue('timestamp', usage?.timestamp.toISOString() || new Date().toISOString());
+        setValue('inventoryId', usage?.inventory.id.toString() || '');
+        setValue('userId', usage?.user.id.toString() || '');
+    }, [usage, setValue]);
+
+    useEffect(() => {
+        setInventoryOptions(inventories.map((inventory) => ({ value: inventory.id.toString(), label: inventory.name })));
+    }, [inventories]);
+
+    useEffect(() => {
+        setUserOptions(users.map((user) => ({ value: user.id.toString(), label: user.name })));
+    }, [users]);
+
     return (
         <div>
             <Transition appear show={isOpen} as={Fragment}>
@@ -26,32 +107,63 @@ const ComponentsModalInventoryUsage = ({ isOpen, onToggleOpen }: ComponentsModal
                                     </button>
                                 </div>
                                 <div className="p-5">
-                                    <form className="space-y-5">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
                                         <div>
-                                            <label htmlFor="name">Inventory</label>
-                                            <input id="name" type="text" placeholder="Inventory Name" className="form-input" />
+                                            <label htmlFor="inventory">Inventory</label>
+                                            <Controller
+                                                name="inventoryId"
+                                                control={control}
+                                                render={({ field: { value, onChange } }) => (
+                                                    <Select options={inventoryOptions} value={inventoryOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                )}
+                                            />
                                         </div>
                                         <div>
-                                            <label htmlFor="phone">Staff</label>
-                                            <input id="phone" type="text" placeholder="Staff Name" className="form-input" />
+                                            <label htmlFor="brand">Staff</label>
+                                            <Controller
+                                                name="userId"
+                                                control={control}
+                                                render={({ field: { value, onChange } }) => (
+                                                    <Select options={userOptions} value={userOptions.find((opt) => opt.value === value)} onChange={(val) => onChange(val?.value)} />
+                                                )}
+                                            />
                                         </div>
+
                                         <div>
                                             <label htmlFor="quantity">Quantity</label>
-                                            <input id="quantity" type="number" placeholder="Quantity" className="form-input" />
+                                            <input id="quantity" type="number" placeholder="Quantity" className="form-input" {...register('quantity')} />
                                         </div>
                                         <div>
                                             <label htmlFor="timestamp">Date and Time</label>
-                                            <input id="timestamp" type="datetime-local" placeholder="DD / MM / YYYY" className="form-input" />
+                                            <Controller
+                                                name="timestamp"
+                                                control={control}
+                                                render={({ field: { onChange, ...fieldProps } }) => (
+                                                    <Flatpickr
+                                                        {...fieldProps}
+                                                        data-enable-time
+                                                        options={{
+                                                            enableTime: true,
+                                                            dateFormat: 'Y-m-d H:i',
+                                                        }}
+                                                        className="form-input"
+                                                        onChange={(dates, current) => onChange(current)}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="mt-8 flex items-center justify-end">
+                                            <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
+                                                Discard
+                                            </button>
+                                            <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                {isSubmitting && (
+                                                    <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                )}
+                                                Save
+                                            </button>
                                         </div>
                                     </form>
-                                    <div className="mt-8 flex items-center justify-end">
-                                        <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
-                                            Discard
-                                        </button>
-                                        <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                            Save
-                                        </button>
-                                    </div>
                                 </div>
                             </DialogPanel>
                         </div>

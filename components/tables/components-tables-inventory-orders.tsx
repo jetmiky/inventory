@@ -1,6 +1,5 @@
 'use client';
 
-import type InventoryOrder from '@/interfaces/InventoryOrder';
 import IconEye from '../icon/icon-eye';
 import IconPencil from '@/components/icon/icon-pencil';
 import IconPlus from '../icon/icon-plus';
@@ -10,24 +9,44 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalInventoryOrder from '../components/modals/components-modal-inventory-order';
 import Link from 'next/link';
+import type { Prisma, Supplier } from '@prisma/client';
 
-const ComponentsTablesInventoryOrders = () => {
-    const orders: InventoryOrder[] = [
-        { id: 'IO001', invoice: 'INV/3306', timestamp: '3102102', supplier: 'Nusantara Threads', total: 50000, status: 'Complete' },
-        { id: 'IO002', invoice: 'INV/0912/10/24', timestamp: '3102102', supplier: 'Sumatra Embroinvoiceery Co', total: 3000, status: 'Incomplete' },
-        { id: 'IO003', invoice: 'INV/3306', timestamp: '3102102', supplier: 'Nusantara Threads', total: 50000, status: 'Paid' },
-    ];
+export type InventoryOrder = Prisma.InventoryOrderGetPayload<{ include: { supplier: true } }>;
 
+type ComponentsTablesInventoryOrdersProps = {
+    orders: InventoryOrder[];
+    suppliers: Supplier[];
+};
+
+const ComponentsTablesInventoryOrders = ({ orders, suppliers }: ComponentsTablesInventoryOrdersProps) => {
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [order, setOrder] = useState<InventoryOrder | null>(null);
+
+    const handleOpenModal = (order: InventoryOrder | null) => {
+        setOrder(order);
+        setModalOpen(true);
+    };
+
+    const handleUpdateOrders = (order: InventoryOrder) => {
+        const index = orders.findIndex((t) => t.id === order.id);
+        setOrder(order);
+
+        if (index < 0) {
+            orders.push(order);
+            return;
+        }
+
+        orders[index] = order;
+    };
 
     return (
         <div>
-            <ComponentsModalInventoryOrder isOpen={isModalOpen} onToggleOpen={setModalOpen} />
+            <ComponentsModalInventoryOrder isOpen={isModalOpen} onToggleOpen={setModalOpen} order={order} suppliers={suppliers} onUpdateOrders={handleUpdateOrders} />
 
             <div className="flex justify-between items-center mb-7">
                 <h2 className="text-lg font-bold">Inventory Orders</h2>
 
-                <button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>
+                <button type="button" className="btn btn-primary" onClick={() => handleOpenModal(null)}>
                     <IconPlus className="mr-4" />
                     Add Inventory Order
                 </button>
@@ -50,8 +69,8 @@ const ComponentsTablesInventoryOrders = () => {
                             return (
                                 <tr key={order.id}>
                                     <td>{order.invoice}</td>
-                                    <td>{order.timestamp}</td>
-                                    <td>{order.supplier}</td>
+                                    <td>{order.timestamp.toString()}</td>
+                                    <td>{order.supplier.name}</td>
                                     <td>{order.total}</td>
                                     <td>{order.status}</td>
                                     <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
@@ -61,7 +80,7 @@ const ComponentsTablesInventoryOrders = () => {
                                             </Link>
                                         </Tippy>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => handleOpenModal(order)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
