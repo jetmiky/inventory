@@ -4,15 +4,15 @@ import IconPencil from '@/components/icon/icon-pencil';
 import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
 import type { Prisma, Inventory, SupplierPaymentMethod } from '@prisma/client';
 import React, { useEffect, useState } from 'react';
-// import ComponentsModalInventoryOrder from '../components/modals/components-modal-inventory-order';
-import ComponentsTablesInventoryOrderDetails from '../tables/components-tables-inventory-order-details';
-import ComponentsTablesInventoryOrderPayments from '../tables/components-tables-inventory-order-payments';
-import formatThousands from 'format-thousands';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import ComponentsModalInventoryOrder from '../components/modals/components-modal-inventory-order';
 import ComponentsModalInventoryOrderDiscount from '../components/modals/components-modal-inventory-order-discount';
 import ComponentsModalInventoryOrderDetail from '../components/modals/components-modal-inventory-order-detail';
 import ComponentsModalInventoryOrderPayment from '../components/modals/components-modal-inventory-order-payment';
+import ComponentsTablesInventoryOrderDetails from '../tables/components-tables-inventory-order-details';
+import ComponentsTablesInventoryOrderPayments from '../tables/components-tables-inventory-order-payments';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import formatThousands from 'format-thousands';
 
 const toast = withReactContent(Swal);
 
@@ -32,6 +32,7 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
     const [payment, setPayment] = useState<InventoryOrderPayment | null>(null);
     const [totalPayment, setTotalPayment] = useState<number>(0);
     const [progress, setProgress] = useState<number>(0);
+    const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState<boolean>(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
@@ -142,7 +143,7 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
 
     return (
         <section className="space-y-4">
-            {/* <ComponentsModalInventoryOrder isOpen={isModalOpen} onToggleOpen={setModalOpen} order={order} suppliers={suppliers} onUpdateOrders={handleUpdateOrders} /> */}
+            <ComponentsModalInventoryOrder isOpen={isDataModalOpen} onToggleOpen={setIsDataModalOpen} order={order} suppliers={[]} onUpdateOrders={() => {}} />
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="w-full rounded-lg border border-white-light bg-white shadow-[4px_6px_10px_-3px_#edf0f2] dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:shadow-none">
@@ -163,7 +164,7 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                         </div>
 
                         <div>
-                            <button type="button" className="btn btn-outline-primary">
+                            <button type="button" className="btn btn-outline-primary" onClick={() => setIsDataModalOpen(true)}>
                                 <IconPencil className="mr-2" />
                                 Edit Detail
                             </button>
