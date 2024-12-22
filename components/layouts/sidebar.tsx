@@ -1,4 +1,5 @@
 'use client';
+
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
@@ -33,8 +34,10 @@ import IconMenuAuthentication from '@/components/icon/menu/icon-menu-authenticat
 import IconMenuDocumentation from '@/components/icon/menu/icon-menu-documentation';
 import { usePathname } from 'next/navigation';
 import { getTranslation } from '@/i18n';
+import { useSession } from 'next-auth/react';
 
 const Sidebar = () => {
+    const session = useSession();
     const dispatch = useDispatch();
     const { t } = getTranslation();
     const pathname = usePathname();
@@ -47,6 +50,8 @@ const Sidebar = () => {
             return oldValue === value ? '' : value;
         });
     };
+
+    console.log(session.data);
 
     useEffect(() => {
         const selector = document.querySelector(`.sidebar ul a[href="${window.location.pathname}"]`);
@@ -134,89 +139,101 @@ const Sidebar = () => {
                                 </AnimateHeight>
                             </li>
 
-                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                <IconMinus className="hidden h-5 w-4 flex-none" />
-                                <span>Master Data</span>
-                            </h2>
+                            {session.data?.user.roles.includes('manager-inventory') && (
+                                <>
+                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                        <IconMinus className="hidden h-5 w-4 flex-none" />
+                                        <span>Master Data</span>
+                                    </h2>
 
-                            <li className="nav-item">
-                                <Link href="/suppliers" className="group">
-                                    <div className="flex items-center">
-                                        <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
-                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Suppliers</span>
-                                    </div>
-                                </Link>
-                            </li>
-                            <li className="menu nav-item">
-                                <button type="button" className={`${currentMenu === 'inventories' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('inventories')}>
-                                    <div className="flex items-center">
-                                        <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
-                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventories</span>
-                                    </div>
-
-                                    <div className={currentMenu !== 'inventories' ? '-rotate-90 rtl:rotate-90' : ''}>
-                                        <IconCaretDown />
-                                    </div>
-                                </button>
-
-                                <AnimateHeight duration={300} height={currentMenu === 'inventories' ? 'auto' : 0}>
-                                    <ul className="sub-menu text-gray-500">
-                                        <li>
-                                            <Link href="/inventories">Inventories</Link>
-                                        </li>
-                                        <li>
-                                            <Link href="/inventory-types">Inventory Types</Link>
-                                        </li>
-                                        <li>
-                                            <Link href="/inventory-brands">Inventory Brands</Link>
-                                        </li>
-                                    </ul>
-                                </AnimateHeight>
-                            </li>
-
-                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                <IconMinus className="hidden h-5 w-4 flex-none" />
-                                <span>Manage Users</span>
-                            </h2>
-
-                            <li className="nav-item">
-                                <ul>
                                     <li className="nav-item">
-                                        <Link href="/users" className="group">
+                                        <Link href="/suppliers" className="group">
                                             <div className="flex items-center">
-                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Users</span>
+                                                <IconMenuContacts className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Suppliers</span>
                                             </div>
                                         </Link>
                                     </li>
-                                </ul>
-                            </li>
-
-                            <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-                                <IconMinus className="hidden h-5 w-4 flex-none" />
-                                <span>Inventories</span>
-                            </h2>
-
-                            <li className="nav-item">
-                                <ul>
-                                    <li className="nav-item">
-                                        <Link href="/inventory-orders" className="group">
+                                    <li className="menu nav-item">
+                                        <button type="button" className={`${currentMenu === 'inventories' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('inventories')}>
                                             <div className="flex items-center">
-                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventory Orders</span>
+                                                <IconMenuDashboard className="shrink-0 group-hover:!text-primary" />
+                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventories</span>
                                             </div>
-                                        </Link>
+
+                                            <div className={currentMenu !== 'inventories' ? '-rotate-90 rtl:rotate-90' : ''}>
+                                                <IconCaretDown />
+                                            </div>
+                                        </button>
+
+                                        <AnimateHeight duration={300} height={currentMenu === 'inventories' ? 'auto' : 0}>
+                                            <ul className="sub-menu text-gray-500">
+                                                <li>
+                                                    <Link href="/inventories">Inventories</Link>
+                                                </li>
+                                                <li>
+                                                    <Link href="/inventory-types">Inventory Types</Link>
+                                                </li>
+                                                <li>
+                                                    <Link href="/inventory-brands">Inventory Brands</Link>
+                                                </li>
+                                            </ul>
+                                        </AnimateHeight>
                                     </li>
+                                </>
+                            )}
+
+                            {session.data?.user.roles.includes('administrator') && (
+                                <>
+                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                        <IconMinus className="hidden h-5 w-4 flex-none" />
+                                        <span>Manage Users</span>
+                                    </h2>
+
                                     <li className="nav-item">
-                                        <Link href="/inventory-usages" className="group">
-                                            <div className="flex items-center">
-                                                <IconMenuChat className="shrink-0 group-hover:!text-primary" />
-                                                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventory Usages</span>
-                                            </div>
-                                        </Link>
+                                        <ul>
+                                            <li className="nav-item">
+                                                <Link href="/users" className="group">
+                                                    <div className="flex items-center">
+                                                        <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Users</span>
+                                                    </div>
+                                                </Link>
+                                            </li>
+                                        </ul>
                                     </li>
-                                </ul>
-                            </li>
+                                </>
+                            )}
+
+                            {session.data?.user.roles.includes('staff-inventory') && (
+                                <>
+                                    <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
+                                        <IconMinus className="hidden h-5 w-4 flex-none" />
+                                        <span>Inventories</span>
+                                    </h2>
+
+                                    <li className="nav-item">
+                                        <ul>
+                                            <li className="nav-item">
+                                                <Link href="/inventory-orders" className="group">
+                                                    <div className="flex items-center">
+                                                        <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventory Orders</span>
+                                                    </div>
+                                                </Link>
+                                            </li>
+                                            <li className="nav-item">
+                                                <Link href="/inventory-usages" className="group">
+                                                    <div className="flex items-center">
+                                                        <IconMenuChat className="shrink-0 group-hover:!text-primary" />
+                                                        <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Inventory Usages</span>
+                                                    </div>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </>
+                            )}
 
                             <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
                                 <IconMinus className="hidden h-5 w-4 flex-none" />

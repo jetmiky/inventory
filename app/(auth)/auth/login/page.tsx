@@ -4,16 +4,19 @@ import React from 'react';
 import ComponentsAuthLoginForm from '@/components/auth/components-auth-login-form';
 import LanguageDropdown from '@/components/language-dropdown';
 import type { Metadata } from 'next';
+import { getDefaultRouteOf } from '@/middleware';
+import { config } from '@/app/api/auth/[...nextauth]/route';
 
 export const metadata: Metadata = {
     title: 'Login',
 };
 
 const LoginPage = async () => {
-    const session = await getServerSession();
+    const session = await getServerSession(config);
 
     if (session) {
-        redirect('/');
+        const route = getDefaultRouteOf(session.user.roles[0]);
+        redirect(route);
     }
 
     return (

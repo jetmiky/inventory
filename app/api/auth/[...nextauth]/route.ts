@@ -1,8 +1,8 @@
 import prisma from '@/prisma/client';
-import NextAuth from 'next-auth';
+import NextAuth, { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+const config = {
     session: {
         strategy: 'jwt',
     },
@@ -45,11 +45,24 @@ const handler = NextAuth({
 
     callbacks: {
         async jwt({ token, user }) {
-            // @ts-ignore
             if (user) token.roles = user.roles;
             return token;
         },
-    },
-});
 
+        async session({ session, token }) {
+            return {
+                ...session,
+                user: {
+                    name: token.name,
+                    email: token.email,
+                    roles: token.roles,
+                },
+            };
+        },
+    },
+} satisfies NextAuthOptions;
+
+const handler = NextAuth(config);
+
+export { config };
 export { handler as GET, handler as POST };
