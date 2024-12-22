@@ -110,23 +110,41 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
                                 <div className="px-5 pt-3 pb-6">
                                     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
                                         <div>
-                                            <label htmlFor="inventory" className="text-sm">
-                                                Inventory
-                                            </label>
-                                            <Controller
-                                                name="inventoryId"
-                                                control={control}
-                                                render={({ field: { value, onChange } }) => (
-                                                    <Select
-                                                        options={inventoryOptions}
-                                                        value={inventoryOptions.find((opt) => opt.value === value)}
-                                                        onChange={(val) => onChange(val?.value)}
-                                                        className="text-sm"
-                                                        placeholder="Choose Inventory ..."
-                                                        required
+                                            {usage?.id ? (
+                                                <>
+                                                    <label htmlFor="inventory" className="text-sm">
+                                                        Inventory
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        id="inventory"
+                                                        className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                                        defaultValue={usage?.inventory.name}
+                                                        readOnly
+                                                        disabled
                                                     />
-                                                )}
-                                            />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <label htmlFor="inventory" className="text-sm">
+                                                        Inventory
+                                                    </label>
+                                                    <Controller
+                                                        name="inventoryId"
+                                                        control={control}
+                                                        render={({ field: { value, onChange } }) => (
+                                                            <Select
+                                                                options={inventoryOptions}
+                                                                value={inventoryOptions.find((opt) => opt.value === value)}
+                                                                onChange={(val) => onChange(val?.value)}
+                                                                className="text-sm"
+                                                                placeholder="Choose Inventory ..."
+                                                                required
+                                                            />
+                                                        )}
+                                                    />
+                                                </>
+                                            )}
                                         </div>
                                         <div>
                                             <label htmlFor="brand" className="text-sm">
