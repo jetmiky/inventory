@@ -8,8 +8,8 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalInventoryOrderPayment from '../components/modals/components-modal-inventory-order-payment';
 import type { Prisma, SupplierPaymentMethod } from '@prisma/client';
+import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
 
-export type InventoryOrder = Prisma.InventoryOrderGetPayload<{ include: { supplier: true; payments: { include: { method: true } } } }>;
 export type InventoryOrderPayment = Prisma.InventoryOrderPaymentGetPayload<{ include: { method: true } }>;
 
 type ComponentsTablesInventoryOrderPaymentsProps = {

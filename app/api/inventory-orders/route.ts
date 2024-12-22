@@ -50,11 +50,11 @@ export async function PUT(request: NextRequest) {
 
     const order = await prisma.inventoryOrder.update({
         data: {
-            invoice: validation.data.invoice,
-            timestamp: validation.data.timestamp,
-            supplierId: validation.data.supplierId,
-            discount: validation.data.discount ?? 0,
-            tax: validation.data.tax ?? 0,
+            invoice: validation.data?.invoice,
+            timestamp: validation.data?.timestamp,
+            supplierId: validation.data?.supplierId,
+            discount: validation.data?.discount,
+            tax: validation.data?.tax,
         },
         include: { supplier: true },
         where: { id: validation.data.id },

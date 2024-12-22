@@ -3,7 +3,8 @@
 import IconX from '@/components/icon/icon-x';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
-import type { InventoryOrder, InventoryOrderPayment } from '@/components/tables/components-tables-inventory-order-payments';
+import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
+import type { InventoryOrderPayment } from '@/components/tables/components-tables-inventory-order-payments';
 import { useForm, Controller } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';

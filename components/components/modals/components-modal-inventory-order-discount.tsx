@@ -1,14 +1,70 @@
 'use client';
+
 import IconX from '@/components/icon/icon-x';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
+import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 type ComponentsModalInventoryOrderDiscountProps = {
+    order: InventoryOrder | null;
     isOpen: boolean;
     onToggleOpen: (state: boolean) => void;
 };
 
-const ComponentsModalInventoryOrderDiscount = ({ isOpen, onToggleOpen }: ComponentsModalInventoryOrderDiscountProps) => {
+type InventoryOrderDiscountForm = {
+    tax: string;
+    discount: string;
+};
+
+const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: ComponentsModalInventoryOrderDiscountProps) => {
+    const { register, handleSubmit, setValue, control } = useForm<InventoryOrderDiscountForm>();
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    const handleFormSubmit = async (data: InventoryOrderDiscountForm) => {
+        try {
+            setIsSubmitting(true);
+
+            const body = { id: order?.id, tax: Number.parseInt(data.tax), discount: Number.parseInt(data.discount) };
+
+            const response = await fetch('/api/inventory-orders', { method: 'PUT', body: JSON.stringify(body) });
+            const updatedOrder: InventoryOrder = await response.json();
+            console.log(updatedOrder);
+
+            toast.fire({
+                title: 'Successfuly edited tax and discount.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            console.error(error);
+
+            toast.fire({
+                title: 'Failed.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } finally {
+            setIsSubmitting(false);
+            onToggleOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        setValue('tax', order?.tax.toString() || '');
+        setValue('discount', order?.discount.toString() || '');
+    }, [order, setValue]);
+
     return (
         <div>
             <Transition appear show={isOpen} as={Fragment}>
@@ -26,24 +82,28 @@ const ComponentsModalInventoryOrderDiscount = ({ isOpen, onToggleOpen }: Compone
                                     </button>
                                 </div>
                                 <div className="p-5">
-                                    <form className="space-y-5">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
                                         <div>
                                             <label htmlFor="tax">Total Taxes</label>
-                                            <input id="tax" type="number" placeholder="0.00" className="form-input" />
+                                            <input id="tax" type="number" placeholder="0.00" className="form-input" {...register('tax')} />
                                         </div>
                                         <div>
                                             <label htmlFor="discount">Total Discounts</label>
-                                            <input id="discount" type="number" placeholder="0.00" className="form-input" />
+                                            <input id="discount" type="number" placeholder="0.00" className="form-input" {...register('discount')} />
+                                        </div>
+
+                                        <div className="mt-8 flex items-center justify-end">
+                                            <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
+                                                Discard
+                                            </button>
+                                            <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                {isSubmitting && (
+                                                    <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                )}
+                                                Save
+                                            </button>
                                         </div>
                                     </form>
-                                    <div className="mt-8 flex items-center justify-end">
-                                        <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
-                                            Discard
-                                        </button>
-                                        <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                            Save
-                                        </button>
-                                    </div>
                                 </div>
                             </DialogPanel>
                         </div>

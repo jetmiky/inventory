@@ -9,8 +9,13 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalInventoryOrderDiscount from '../components/modals/components-modal-inventory-order-discount';
 import ComponentsModalInventoryOrderDetail from '../components/modals/components-modal-inventory-order-detail';
+import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
 
-const ComponentsTablesInventoryOrderDetails = () => {
+type ComponentsTablesInventoryOrderDetailsProps = {
+    order: InventoryOrder | null;
+};
+
+const ComponentsTablesInventoryOrderDetails = ({ order }: ComponentsTablesInventoryOrderDetailsProps) => {
     const details: InventoryOrderDetail[] = [
         { id: 'IOD001', inventory: 'White Threads', quantity: 12, price: 123123, total: 300000 },
         { id: 'IOD002', inventory: 'Black Threads', quantity: 12, price: 9090, total: 300000 },
@@ -22,7 +27,7 @@ const ComponentsTablesInventoryOrderDetails = () => {
 
     return (
         <div>
-            <ComponentsModalInventoryOrderDiscount isOpen={isDiscountModalOpen} onToggleOpen={setDiscountModalOpen} />
+            <ComponentsModalInventoryOrderDiscount isOpen={isDiscountModalOpen} onToggleOpen={setDiscountModalOpen} order={order} />
             <ComponentsModalInventoryOrderDetail isOpen={isDetailModalOpen} onToggleOpen={setDetailModalOpen} />
 
             <div className="flex justify-between items-center mb-7">
