@@ -2,7 +2,7 @@
 
 import IconPencil from '@/components/icon/icon-pencil';
 import IconPlus from '@/components/icon/icon-plus';
-import IconTrashLines from '@/components/icon/icon-trash-lines';
+import IconRefresh from '../icon/icon-refresh';
 import IconUsers from '@/components/icon/icon-users';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -43,6 +43,19 @@ const ComponentsTablesUsers = ({ users, roles }: ComponentsTablesUsersProps) => 
         }
 
         users[index] = user;
+    };
+
+    const handleToggleStatus = async ({ id, name }: User) => {
+        try {
+            const body = { id, delete: true };
+
+            const response = await fetch('/api/users', { method: 'PUT', body: JSON.stringify(body) });
+            const user: User = await response.json();
+
+            handleUpdateUsers(user);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -107,9 +120,9 @@ const ComponentsTablesUsers = ({ users, roles }: ComponentsTablesUsersProps) => 
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
-                                        <Tippy content="Delete">
-                                            <button type="button" onClick={() => setUserModalOpen(true)}>
-                                                <IconTrashLines className="m-auto" />
+                                        <Tippy content="Activate / Deactivate">
+                                            <button type="button" onClick={() => handleToggleStatus(user)}>
+                                                <IconRefresh className="m-auto" />
                                             </button>
                                         </Tippy>
                                     </td>
