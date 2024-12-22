@@ -1,4 +1,5 @@
 'use client';
+import { signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
@@ -39,6 +40,10 @@ const Header = () => {
     const dispatch = useDispatch();
     const router = useRouter();
     const { t, i18n } = getTranslation();
+
+    const handleSignOut = () => {
+        signOut({ callbackUrl: '/auth/login' });
+    };
 
     useEffect(() => {
         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
@@ -445,10 +450,10 @@ const Header = () => {
                                         </Link>
                                     </li>
                                     <li className="border-t border-white-light dark:border-white-light/10">
-                                        <Link href="/auth/boxed-signin" className="!py-3 text-danger">
+                                        <button onClick={handleSignOut} className="!py-3 text-danger">
                                             <IconLogout className="h-4.5 w-4.5 shrink-0 rotate-90 ltr:mr-2 rtl:ml-2" />
                                             Sign Out
-                                        </Link>
+                                        </button>
                                     </li>
                                 </ul>
                             </Dropdown>
