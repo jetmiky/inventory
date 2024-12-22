@@ -24,10 +24,28 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validation = createInventoryUsageSchema.safeParse(body);
 
-    if (!validation.success) {
-        console.error(validation.error.errors);
-        return NextResponse.json(validation.error.errors, { status: 400 });
+    if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    const inventory = await prisma.inventory.findFirst({
+        where: { id: validation.data.inventoryId },
+    });
+
+    const stock = (inventory?.stock as number) - validation.data.quantity;
+    if (stock < 0) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: 'Not enough stock to create Inventory Usage',
+                usage: null,
+            },
+            { status: 409 },
+        );
     }
+
+    await prisma.inventory.update({
+        where: { id: validation.data.inventoryId },
+        data: { stock },
+    });
 
     const usage = await prisma.inventoryUsage.create({
         data: {
@@ -39,12 +57,7 @@ export async function POST(request: NextRequest) {
         include: { inventory: true, user: true },
     });
 
-    await prisma.inventory.update({
-        where: { id: validation.data.inventoryId },
-        data: { stock: { decrement: validation.data.quantity } },
-    });
-
-    return NextResponse.json(usage, { status: 201 });
+    return NextResponse.json({ success: true, message: 'Successfully created Inventory Usage', usage }, { status: 201 });
 }
 
 export async function PUT(request: NextRequest) {
@@ -55,13 +68,26 @@ export async function PUT(request: NextRequest) {
 
     const oldUsage = await prisma.inventoryUsage.findFirst({
         where: { id: validation.data.id },
+        include: { inventory: true },
     });
 
-    const stock = (oldUsage?.quantity as number) - validation.data.quantity;
+    const originalStockBeforeInsert = (oldUsage?.inventory.stock as number) + (oldUsage?.quantity as number);
+    const updatedStock = originalStockBeforeInsert - validation.data.quantity;
 
-    const inventory = await prisma.inventory.update({
+    if (updatedStock < 0) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: 'Not enough stock to update Inventory Usage',
+                usage: null,
+            },
+            { status: 409 },
+        );
+    }
+
+    await prisma.inventory.update({
         where: { id: oldUsage?.inventoryId },
-        data: { stock: { increment: stock } },
+        data: { stock: updatedStock },
     });
 
     const updatedUsage = await prisma.inventoryUsage.update({
@@ -74,7 +100,7 @@ export async function PUT(request: NextRequest) {
         where: { id: validation.data.id },
     });
 
-    return NextResponse.json(updatedUsage, { status: 200 });
+    return NextResponse.json({ success: true, message: 'Successfully created Inventory Usage', usage: updatedUsage }, { status: 200 });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -84,7 +110,6 @@ export async function DELETE(request: NextRequest) {
     if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
 
     const usage = await prisma.inventoryUsage.delete({ where: { id: validation.data.id } });
-    console.log(usage);
     await prisma.inventory.update({
         where: { id: usage.inventoryId },
         data: { stock: { increment: usage.quantity } },

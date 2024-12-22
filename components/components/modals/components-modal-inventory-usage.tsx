@@ -36,6 +36,12 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [inventoryOptions, setInventoryOptions] = useState<{ value: string; label: string }[]>([]);
     const [userOptions, setUserOptions] = useState<{ value: string; label: string }[]>([]);
+    const [stock, setStock] = useState<number>(0);
+
+    const handleUpdateStock = (inventoryId: string) => {
+        const inventory = inventories.find((i) => i.id === Number.parseInt(inventoryId));
+        setStock(inventory?.stock || 0);
+    };
 
     const handleFormSubmit = async (data: InventoryUsageForm) => {
         try {
@@ -44,10 +50,13 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
             const method = id === 0 ? 'POST' : 'PUT';
             const body = { id, ...data, inventoryId: Number.parseInt(data.inventoryId), userId: Number.parseInt(data.userId), quantity: Number.parseInt(data.quantity) };
 
-            const response = await fetch('/api/inventory-usages', { method, body: JSON.stringify(body) });
-            const usage: InventoryUsage = await response.json();
-            usage.timestamp = new Date(usage.timestamp);
+            const result = await fetch('/api/inventory-usages', { method, body: JSON.stringify(body) });
+            const response: { success: true; message: string; usage: InventoryUsage } = await result.json();
 
+            if (!response.success) throw new Error(response.message);
+
+            const usage = response.usage;
+            usage.timestamp = new Date(usage.timestamp);
             onUpdateUsages(usage);
 
             toast.fire({
@@ -59,10 +68,8 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
                 showCloseButton: true,
             });
         } catch (error) {
-            console.error(error);
-
             toast.fire({
-                title: 'Failed.',
+                title: `${error}`,
                 toast: true,
                 position: 'bottom-right',
                 showConfirmButton: false,
@@ -81,6 +88,7 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
         setValue('timestamp', usage?.timestamp.toISOString() || new Date().toISOString());
         setValue('inventoryId', usage?.inventory.id.toString() || '');
         setValue('userId', usage?.user.id.toString() || '');
+        setStock(usage?.inventory.stock || 0);
     }, [usage, setValue]);
 
     useEffect(() => {
@@ -136,7 +144,10 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
                                                             <Select
                                                                 options={inventoryOptions}
                                                                 value={inventoryOptions.find((opt) => opt.value === value)}
-                                                                onChange={(val) => onChange(val?.value)}
+                                                                onChange={(val) => {
+                                                                    handleUpdateStock(val?.value as string);
+                                                                    onChange(val?.value);
+                                                                }}
                                                                 className="text-sm"
                                                                 placeholder="Choose Inventory ..."
                                                                 required
@@ -145,6 +156,19 @@ const ComponentsModalInventoryUsage = ({ usage, isOpen, onToggleOpen, onUpdateUs
                                                     />
                                                 </>
                                             )}
+                                        </div>
+                                        <div>
+                                            <label htmlFor="stock" className="text-sm">
+                                                {usage?.id ? 'Inventory Stock before this Usage' : 'Inventory Stock'}
+                                            </label>
+                                            <input
+                                                type="number"
+                                                id="stock"
+                                                className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                                value={usage?.id ? stock + usage?.quantity : stock}
+                                                readOnly
+                                                disabled
+                                            />
                                         </div>
                                         <div>
                                             <label htmlFor="brand" className="text-sm">

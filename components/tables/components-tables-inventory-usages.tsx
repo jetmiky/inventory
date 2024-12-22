@@ -23,6 +23,7 @@ type ComponentsTablesInventoryUsagesProps = {
 
 const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: ComponentsTablesInventoryUsagesProps) => {
     const [usageList, setUsageList] = useState<InventoryUsage[]>(usages);
+    const [inventoryList, setInventoryList] = useState<Inventory[]>(inventories);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [usage, setUsage] = useState<InventoryUsage | null>(null);
 
@@ -34,6 +35,7 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
     const handleUpdateUsages = (usage: InventoryUsage) => {
         const index = usageList.findIndex((u) => u.id === usage.id);
         setUsage(usage);
+        handleUpdateInventories(usage.inventory);
 
         if (index < 0) {
             setUsageList([usage, ...usageList]);
@@ -41,6 +43,11 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
         }
 
         setUsageList([...usageList.slice(0, index), usage, ...usageList.slice(index + 1)]);
+    };
+
+    const handleUpdateInventories = (inventory: Inventory) => {
+        const index = inventoryList.findIndex((i) => i.id === inventory.id);
+        setInventoryList([...inventoryList.slice(0, index), inventory, ...inventoryList.slice(index + 1)]);
     };
 
     const handleDeleteUsage = async ({ id }: InventoryUsage) => {
@@ -75,7 +82,7 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
 
     return (
         <div>
-            <ComponentsModalInventoryUsage isOpen={isModalOpen} onToggleOpen={setModalOpen} usage={usage} onUpdateUsages={handleUpdateUsages} inventories={inventories} users={users} />
+            <ComponentsModalInventoryUsage isOpen={isModalOpen} onToggleOpen={setModalOpen} usage={usage} onUpdateUsages={handleUpdateUsages} inventories={inventoryList} users={users} />
 
             <div className="flex justify-between items-center mb-7">
                 <h2 className="text-lg font-bold">Inventory Usages</h2>

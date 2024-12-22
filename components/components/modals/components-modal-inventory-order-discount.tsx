@@ -34,7 +34,6 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
 
             const response = await fetch('/api/inventory-orders', { method: 'PUT', body: JSON.stringify(body) });
             const updatedOrder: InventoryOrder = await response.json();
-            console.log(updatedOrder);
 
             toast.fire({
                 title: 'Successfuly edited tax and discount.',
