@@ -19,6 +19,10 @@ const updateInventorySchema = z.object({
     typeId: z.number().min(1),
 });
 
+const deleteInventorySchema = z.object({
+    id: z.number().min(1),
+});
+
 export async function POST(request: NextRequest) {
     const body = await request.json();
     const validation = createInventorySchema.safeParse(body);
@@ -62,4 +66,28 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json(inventory, { status: 200 });
+}
+
+export async function DELETE(request: NextRequest) {
+    const body = await request.json();
+    const validation = deleteInventorySchema.safeParse(body);
+
+    if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    const inventory = await prisma.inventory.findFirst({
+        where: { id: validation.data.id },
+        include: { usages: true, orderDetails: true },
+    });
+
+    if (inventory?.usages?.length) {
+        return NextResponse.json({ message: `Cannot delete inventory, as already have ${inventory?.usages?.length} usages.`, success: false }, { status: 409 });
+    }
+
+    if (inventory?.orderDetails?.length) {
+        return NextResponse.json({ message: `Cannot delete inventory, as already have ${inventory?.orderDetails?.length} orders.`, success: false }, { status: 409 });
+    }
+
+    await prisma.inventory.delete({ where: { id: validation.data.id } });
+
+    return NextResponse.json({ message: 'Inventory deleted successfully', success: true }, { status: 200 });
 }

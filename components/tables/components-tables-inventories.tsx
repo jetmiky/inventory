@@ -8,6 +8,10 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import type { InventoryBrand, InventoryType, Prisma } from '@prisma/client';
 import ComponentsModalInventory from '../components/modals/components-modal-inventory';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 export type Inventory = Prisma.InventoryGetPayload<{ include: { brand: true; type: true } }>;
 
@@ -18,6 +22,7 @@ type ComponentsTablesInventoriesProps = {
 };
 
 const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsTablesInventoriesProps) => {
+    const [inventoryList, setInventoryList] = useState<Inventory[]>(inventories);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [inventory, setInventory] = useState<Inventory | null>(null);
 
@@ -27,15 +32,45 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
     };
 
     const handleUpdateInventories = (inventory: Inventory) => {
-        const index = inventories.findIndex((b) => b.id === inventory.id);
+        const index = inventoryList.findIndex((i) => i.id === inventory.id);
         setInventory(inventory);
 
         if (index < 0) {
-            inventories.push(inventory);
+            setInventoryList([...inventoryList, inventory]);
             return;
         }
 
-        inventories[index] = inventory;
+        setInventoryList([...inventoryList.slice(0, index), inventory, ...inventoryList.slice(index + 1)]);
+    };
+
+    const handleDeleteInventory = async ({ id }: Inventory) => {
+        try {
+            const body = { id };
+
+            const result = await fetch('/api/inventories', { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setInventoryList(inventoryList.filter((i) => i.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted inventory.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
+        }
     };
 
     return (
@@ -65,7 +100,7 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
                         </tr>
                     </thead>
                     <tbody>
-                        {inventories.map((inventory) => {
+                        {inventoryList.map((inventory) => {
                             return (
                                 <tr key={inventory.id}>
                                     <td className="max-w-1 whitespace-nowrap">{`IN00${inventory.id}`}</td>
@@ -81,7 +116,7 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
                                             </button>
                                         </Tippy>
                                         <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => handleDeleteInventory(inventory)}>
                                                 <IconTrashLines className="m-auto" />
                                             </button>
                                         </Tippy>
