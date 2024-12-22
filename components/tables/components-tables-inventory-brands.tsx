@@ -8,12 +8,17 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import type { InventoryBrand } from '@prisma/client';
 import ComponentsModalInventoryBrand from '../components/modals/components-modal-inventory-brand';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 type ComponentsTablesInventoryBrandsProps = {
     brands: InventoryBrand[];
 };
 
 const ComponentsTablesInventoryBrands = ({ brands }: ComponentsTablesInventoryBrandsProps) => {
+    const [brandList, setBrandList] = useState<InventoryBrand[]>(brands);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [brand, setBrand] = useState<InventoryBrand | null>(null);
 
@@ -23,15 +28,45 @@ const ComponentsTablesInventoryBrands = ({ brands }: ComponentsTablesInventoryBr
     };
 
     const handleUpdateBrands = (brand: InventoryBrand) => {
-        const index = brands.findIndex((b) => b.id === brand.id);
+        const index = brandList.findIndex((b) => b.id === brand.id);
         setBrand(brand);
 
         if (index < 0) {
-            brands.push(brand);
+            setBrandList([...brandList, brand]);
             return;
         }
 
-        brands[index] = brand;
+        setBrandList([...brandList.slice(0, index), brand, ...brandList.slice(index + 1)]);
+    };
+
+    const handleDeleteBrand = async ({ id }: InventoryBrand) => {
+        try {
+            const body = { id };
+
+            const result = await fetch('/api/brands', { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setBrandList(brandList.filter((b) => b.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted brand.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
+        }
     };
 
     return (
@@ -57,7 +92,7 @@ const ComponentsTablesInventoryBrands = ({ brands }: ComponentsTablesInventoryBr
                         </tr>
                     </thead>
                     <tbody>
-                        {brands.map((brand) => {
+                        {brandList.map((brand) => {
                             return (
                                 <tr key={brand.id}>
                                     <td className="max-w-1 whitespace-nowrap">{`IB00${brand.id}`}</td>
@@ -69,7 +104,7 @@ const ComponentsTablesInventoryBrands = ({ brands }: ComponentsTablesInventoryBr
                                             </button>
                                         </Tippy>
                                         <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => handleDeleteBrand(brand)}>
                                                 <IconTrashLines className="m-auto" />
                                             </button>
                                         </Tippy>
