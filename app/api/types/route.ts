@@ -13,6 +13,10 @@ const updateTypeSchema = z.object({
     description: z.string().min(1).max(191),
 });
 
+const deleteTypeSchema = z.object({
+    id: z.number().min(1),
+});
+
 export async function POST(request: NextRequest) {
     const body = await request.json();
     const validation = createTypeSchema.safeParse(body);
@@ -44,4 +48,24 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json(type, { status: 200 });
+}
+
+export async function DELETE(request: NextRequest) {
+    const body = await request.json();
+    const validation = deleteTypeSchema.safeParse(body);
+
+    if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    const type = await prisma.inventoryType.findFirst({
+        where: { id: validation.data.id },
+        include: { inventories: true },
+    });
+
+    if (type?.inventories?.length) {
+        return NextResponse.json({ message: `Cannot delete inventory type, as already mapped to ${type?.inventories?.length} inventory.`, success: false }, { status: 409 });
+    }
+
+    await prisma.inventoryType.delete({ where: { id: validation.data.id } });
+
+    return NextResponse.json({ message: 'Inventory type deleted successfully', success: true }, { status: 200 });
 }
