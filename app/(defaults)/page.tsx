@@ -1,13 +1,22 @@
-import ComponentsDashboardSales from '@/components/dashboard/components-dashboard-sales';
-import { Metadata } from 'next';
-import React from 'react';
+import type { Metadata } from 'next';
+import { getServerSession } from 'next-auth';
+import { config } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
+import { getDefaultRouteOf } from '@/middleware';
 
 export const metadata: Metadata = {
-    title: 'Sales Admin',
+    title: 'Dashboard',
 };
 
-const Sales = () => {
-    return <ComponentsDashboardSales />;
+const DashboardPage = async () => {
+    const session = await getServerSession(config);
+
+    if (session) {
+        const route = getDefaultRouteOf(session.user.roles[0]);
+        redirect(route);
+    }
+
+    return;
 };
 
-export default Sales;
+export default DashboardPage;
