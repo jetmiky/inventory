@@ -26,8 +26,6 @@ const deleteInventoryOrderPaymentSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-    // TODO: Update order status
-
     const body = await request.json();
     const validation = createInventoryOrderPayment.safeParse(body);
 
@@ -35,6 +33,18 @@ export async function POST(request: NextRequest) {
         console.error(validation.error.errors);
         return NextResponse.json(validation.error.errors, { status: 400 });
     }
+
+    const order = await prisma.inventoryOrder.findFirst({
+        where: { id: validation.data.inventoryOrderId },
+    });
+
+    const data = { totalPayment: { increment: validation.data.total }, status: order?.status };
+
+    if (Number(order?.totalPayment) + validation.data.total >= Number(order?.total)) {
+        data.status = 'COMPLETED';
+    }
+
+    await prisma.inventoryOrder.update({ where: { id: validation.data.inventoryOrderId }, data });
 
     const payment = await prisma.inventoryOrderPayment.create({
         data: {
@@ -50,12 +60,29 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-    // TODO: Update order status
-
     const body = await request.json();
     const validation = updateInventoryOrderPaymentSchema.safeParse(body);
 
     if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    const order = await prisma.inventoryOrder.findFirst({
+        where: { id: validation.data.inventoryOrderId },
+    });
+
+    const oldPayment = await prisma.inventoryOrderPayment.findFirst({
+        where: { id: validation.data.id },
+    });
+
+    const totalPaymentBefore = Number(order?.totalPayment) - Number(oldPayment?.total);
+    const updatedTotalPayment = totalPaymentBefore + Number(validation.data.total);
+
+    const data = { totalPayment: updatedTotalPayment, status: order?.status };
+
+    if (updatedTotalPayment >= Number(order?.total)) {
+        data.status = 'COMPLETED';
+    }
+
+    await prisma.inventoryOrder.update({ where: { id: order?.id }, data });
 
     const payment = await prisma.inventoryOrderPayment.update({
         data: {
@@ -72,14 +99,23 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    // TODO: Update order status
-
     const body = await request.json();
     const validation = deleteInventoryOrderPaymentSchema.safeParse(body);
 
     if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
 
-    await prisma.inventoryOrderPayment.delete({ where: { id: validation.data.id } });
+    const payment = await prisma.inventoryOrderPayment.delete({ where: { id: validation.data.id } });
+    const order = await prisma.inventoryOrder.findFirst({
+        where: { id: payment.inventoryOrderId },
+    });
+
+    const data = { totalPayment: { decrement: payment.total }, status: order?.status };
+
+    if (Number(order?.totalPayment) + Number(payment.total) >= Number(order?.total)) {
+        data.status = 'COMPLETED';
+    }
+
+    await prisma.inventoryOrder.update({ where: { id: order?.id }, data });
 
     return NextResponse.json({ message: 'Supplier deleted successfully', success: true }, { status: 200 });
 }

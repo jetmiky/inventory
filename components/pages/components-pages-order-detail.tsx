@@ -26,6 +26,7 @@ type ComponentsPagesOrderDetailProps = {
 };
 
 const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsPagesOrderDetailProps) => {
+    const [inventoryOrder, setInventoryOrder] = useState<InventoryOrder>(order);
     const [details, setDetails] = useState<InventoryOrderDetail[]>(order?.details || []);
     const [detail, setDetail] = useState<InventoryOrderDetail | null>(null);
     const [payments, setPayments] = useState<InventoryOrderPayment[]>(order?.payments || []);
@@ -36,6 +37,10 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState<boolean>(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
+
+    const handleUpdateOrder = (order: InventoryOrder) => {
+        setInventoryOrder(order);
+    };
 
     const handleOpenDetailModal = (detail: InventoryOrderDetail | null) => {
         setDetail(detail);
@@ -151,15 +156,15 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                         <div className="space-y-3">
                             <div>
                                 <p className="text-sm text-gray-500">Invoice Number</p>
-                                <p className="text-lg font-bold text-gray-800">{order?.invoice}</p>
+                                <p className="text-lg font-bold text-gray-800">{inventoryOrder.invoice}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Supplier</p>
-                                <p className="font-bold text-gray-800">{order?.supplier.name}</p>
+                                <p className="font-bold text-gray-800">{inventoryOrder.supplier.name}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500">Invoice Date</p>
-                                <p className="font-bold text-gray-800">{order?.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                <p className="font-bold text-gray-800">{inventoryOrder.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                             </div>
                         </div>
 
@@ -175,7 +180,7 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                     <div className="px-6 py-7 space-y-3">
                         <div>
                             <p className="text-sm text-gray-500">Total Bill</p>
-                            <p className="text-lg font-bold text-gray-800">Rp {formatThousands(order?.total || 0, '.')}</p>
+                            <p className="text-lg font-bold text-gray-800">Rp {formatThousands(inventoryOrder.total || 0, '.')}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Total Payment</p>
@@ -184,7 +189,9 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                         <div>
                             <p className="text-sm text-gray-500 mb-2">Payment Progress</p>
                             <div className="w-full h-5 bg-[#ebedf2] dark:bg-dark/40 rounded-full">
-                                <div className="bg-primary h-5 rounded-full w-4/5 flex items-center justify-center text-white text-xs">{progress}%</div>
+                                <div className="bg-primary h-5 rounded-full flex items-center justify-center text-white text-xs" style={{ width: `${progress}%` }}>
+                                    {progress}%
+                                </div>
                             </div>
                         </div>
                         <div>

@@ -84,17 +84,18 @@ model SupplierPaymentMethod {
 }
 
 model InventoryOrder {
-  id         Int                     @id @default(autoincrement())
-  invoice    String
-  discount   BigInt                  @default(0)
-  tax        BigInt                  @default(0)
-  total      BigInt @default(0)
-  timestamp  DateTime
-  status     InventoryOrderStatus @default(INCOMPLETE)
-  supplier   Supplier                @relation(fields: [supplierId], references: [id])
-  supplierId Int
-  details    InventoryOrderDetail[]
-  payments   InventoryOrderPayment[]
+  id           Int                     @id @default(autoincrement())
+  invoice      String
+  discount     BigInt                  @default(0)
+  tax          BigInt                  @default(0)
+  total        BigInt                  @default(0)
+  totalPayment BigInt                  @default(0)
+  timestamp    DateTime
+  status       InventoryOrderStatus    @default(INCOMPLETE)
+  supplier     Supplier                @relation(fields: [supplierId], references: [id])
+  supplierId   Int
+  details      InventoryOrderDetail[]
+  payments     InventoryOrderPayment[]
 }
 
 enum InventoryOrderStatus {
