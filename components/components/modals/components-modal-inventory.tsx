@@ -122,6 +122,7 @@ const ComponentsModalInventory = ({ inventory, types, brands, isOpen, onToggleOp
                                                         onChange={(val) => onChange(val?.value)}
                                                         className="text-sm"
                                                         placeholder="Choose Inventory Type ..."
+                                                        required
                                                     />
                                                 )}
                                             />
@@ -140,6 +141,7 @@ const ComponentsModalInventory = ({ inventory, types, brands, isOpen, onToggleOp
                                                         onChange={(val) => onChange(val?.value)}
                                                         className="text-sm"
                                                         placeholder="Choose Inventory Brand ..."
+                                                        required
                                                     />
                                                 )}
                                             />
