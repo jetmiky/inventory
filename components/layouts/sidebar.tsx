@@ -51,8 +51,6 @@ const Sidebar = () => {
         });
     };
 
-    console.log(session.data);
-
     useEffect(() => {
         const selector = document.querySelector(`.sidebar ul a[href="${window.location.pathname}"]`);
         if (selector) {
