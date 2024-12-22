@@ -1,6 +1,7 @@
 'use client';
 
 import IconPencil from '@/components/icon/icon-pencil';
+import IconSave from '@/components/icon/icon-save';
 import IconTrashLines from '@/components/icon/icon-trash-lines';
 import IconX from '@/components/icon/icon-x';
 import Tippy from '@tippyjs/react';
@@ -8,7 +9,7 @@ import 'tippy.js/dist/tippy.css';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
 import type { SupplierPaymentMethod } from '@prisma/client';
 import type { Supplier } from '@/components/tables/components-tables-suppliers';
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 type ComponentsModalSuppllierPaymentMethodProps = {
@@ -74,19 +75,29 @@ const ComponentsModalSupplierPaymentMethod = ({ supplier, isOpen, onToggleOpen }
                     <div id="fadein_modal" className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
                         <div className="flex min-h-screen items-start justify-center px-4">
                             <DialogPanel className="panel animate__animated animate__fadeIn my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                                <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-6 dark:bg-[#121c2c]">
                                     <h5 className="text-lg font-bold">Supplier Payment Methods</h5>
                                     <button onClick={() => onToggleOpen(false)} type="button" className="text-white-dark hover:text-dark">
                                         <IconX />
                                     </button>
                                 </div>
-                                <div className="p-5">
-                                    <div className="mb-4">
-                                        <label htmlFor="supplier_name">Supplier Name</label>
-                                        <input type="text" id="supplier_name" className="form-input" value={supplier?.name || ''} disabled />
+                                <div className="px-5 pt-3 pb-6">
+                                    <div className="mb-6">
+                                        <label htmlFor="supplier_name" className="text-sm">
+                                            Supplier Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="supplier_name"
+                                            className="form-input disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] cursor-not-allowed"
+                                            defaultValue={supplier?.name}
+                                            readOnly
+                                            disabled
+                                        />
                                     </div>
 
-                                    <div className="mb-4">
+                                    <div className="mb-6">
+                                        <h6 className="font-bold mb-2">Payment Methods</h6>
                                         <table>
                                             <thead>
                                                 <tr>
@@ -96,47 +107,60 @@ const ComponentsModalSupplierPaymentMethod = ({ supplier, isOpen, onToggleOpen }
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {supplier?.methods?.map((method) => (
-                                                    <tr key={method.id}>
-                                                        <td>{method.name}</td>
-                                                        <td>{method.account}</td>
-                                                        <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
-                                                            <Tippy content="Edit">
-                                                                <button type="button" onClick={() => handleSelectMethod(method)}>
-                                                                    <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                                                </button>
-                                                            </Tippy>
-                                                            <Tippy content="Delete">
-                                                                <button type="button">
-                                                                    <IconTrashLines className="m-auto" />
-                                                                </button>
-                                                            </Tippy>
-                                                        </td>
+                                                {supplier?.methods?.length ? (
+                                                    supplier?.methods?.map((method) => (
+                                                        <tr key={method.id}>
+                                                            <td>{method.name}</td>
+                                                            <td>{method.account}</td>
+                                                            <td className="border-b border-[#ebedf2] p-3 text-center dark:border-[#191e3a]">
+                                                                <Tippy content="Edit">
+                                                                    <button type="button" onClick={() => handleSelectMethod(method)}>
+                                                                        <IconPencil className="ltr:mr-2 rtl:ml-2" />
+                                                                    </button>
+                                                                </Tippy>
+                                                                <Tippy content="Delete">
+                                                                    <button type="button">
+                                                                        <IconTrashLines className="m-auto" />
+                                                                    </button>
+                                                                </Tippy>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={3}>No payment method recorded yet.</td>
                                                     </tr>
-                                                ))}
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
 
-                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+                                    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3">
+                                        <h6 className="font-bold">Record Payment Method</h6>
                                         <div>
-                                            <label htmlFor="name">Name</label>
-                                            <input id="name" type="text" placeholder="Payment Method Name" className="form-input" {...register('name')} />
+                                            <label htmlFor="name" className="text-sm">
+                                                Name
+                                            </label>
+                                            <input id="name" type="text" placeholder="Payment Method Name" className="form-input" {...register('name')} required />
                                         </div>
                                         <div>
-                                            <label htmlFor="account">Account Number</label>
-                                            <input id="account" type="text" placeholder="Account Number" className="form-input" {...register('account')} />
+                                            <label htmlFor="account" className="text-sm">
+                                                Account Number
+                                            </label>
+                                            <input id="account" type="text" placeholder="Account Number" className="form-input" {...register('account')} required />
                                         </div>
 
-                                        <div className="mt-8 flex items-center justify-end">
+                                        <div className="!mt-6 flex items-center justify-end space-x-3">
                                             <button onClick={() => onToggleOpen(false)} type="button" className="btn btn-outline-danger">
                                                 Close
                                             </button>
                                             <button disabled={isSubmitting} type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                {isSubmitting && (
+                                                {isSubmitting ? (
                                                     <span className="animate-spin border-2 border-white border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle" />
+                                                ) : (
+                                                    <IconSave className="mr-3" />
                                                 )}
-                                                Add Payment Method
+                                                Save Payment Method
                                             </button>
                                         </div>
                                     </form>
