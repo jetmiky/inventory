@@ -1,13 +1,9 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import ComponentsTablesInventoryOrderDetails from '@/components/tables/components-tables-inventory-order-details';
-import ComponentsTablesInventoryOrderPayments from '@/components/tables/components-tables-inventory-order-payments';
 import IconArrowLeft from '@/components/icon/icon-arrow-left';
-import IconPencil from '@/components/icon/icon-pencil';
 import prisma from '@/prisma/client';
 import type { Prisma } from '@prisma/client';
 import Link from 'next/link';
-import formatThousands from 'format-thousands';
 import ComponentsPagesOrderDetail from '@/components/pages/components-pages-order-detail';
 import { redirect } from 'next/navigation';
 

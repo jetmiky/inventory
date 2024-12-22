@@ -15,7 +15,14 @@ const updateInventoryOrderDetailSchema = z.object({
     inventoryId: z.number().min(1),
 });
 
+const deleteInventoryOrderDetailSchema = z.object({
+    id: z.number().min(1),
+});
+
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    // TODO: Update inventory stock
+    // TODO: Update order total price
+
     const orderId = (await params).id;
     const body = await request.json();
     const validation = createInventoryOrderDetailSchema.safeParse(body);
@@ -39,6 +46,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 export async function PUT(request: NextRequest) {
+    // TODO: Update inventory stock
+    // TODO: Update order total price
+
     const body = await request.json();
     const validation = updateInventoryOrderDetailSchema.safeParse(body);
 
@@ -55,4 +65,18 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json(detail, { status: 200 });
+}
+
+export async function DELETE(request: NextRequest) {
+    // TODO: Update inventory stock
+    // TODO: Update order total price
+
+    const body = await request.json();
+    const validation = deleteInventoryOrderDetailSchema.safeParse(body);
+
+    if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    await prisma.inventoryOrderDetail.delete({ where: { id: validation.data.id } });
+
+    return NextResponse.json({ message: 'Inventory Order Item deleted successfully', success: true }, { status: 200 });
 }

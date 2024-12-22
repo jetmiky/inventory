@@ -8,12 +8,15 @@ import React, { useEffect, useState } from 'react';
 import ComponentsTablesInventoryOrderDetails from '../tables/components-tables-inventory-order-details';
 import ComponentsTablesInventoryOrderPayments from '../tables/components-tables-inventory-order-payments';
 import formatThousands from 'format-thousands';
-import ComponentsModalInventoryOrderPayment from '../components/modals/components-modal-inventory-order-payment';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import ComponentsModalInventoryOrderDiscount from '../components/modals/components-modal-inventory-order-discount';
+import ComponentsModalInventoryOrderDetail from '../components/modals/components-modal-inventory-order-detail';
+import ComponentsModalInventoryOrderPayment from '../components/modals/components-modal-inventory-order-payment';
 
 const toast = withReactContent(Swal);
 
+export type InventoryOrderDetail = Prisma.InventoryOrderDetailGetPayload<{ include: { inventory: true } }>;
 export type InventoryOrderPayment = Prisma.InventoryOrderPaymentGetPayload<{ include: { method: true } }>;
 
 type ComponentsPagesOrderDetailProps = {
@@ -23,15 +26,36 @@ type ComponentsPagesOrderDetailProps = {
 };
 
 const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsPagesOrderDetailProps) => {
+    const [details, setDetails] = useState<InventoryOrderDetail[]>(order?.details || []);
+    const [detail, setDetail] = useState<InventoryOrderDetail | null>(null);
     const [payments, setPayments] = useState<InventoryOrderPayment[]>(order?.payments || []);
     const [payment, setPayment] = useState<InventoryOrderPayment | null>(null);
     const [totalPayment, setTotalPayment] = useState<number>(0);
     const [progress, setProgress] = useState<number>(0);
+    const [isDiscountModalOpen, setIsDiscountModalOpen] = useState<boolean>(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
+
+    const handleOpenDetailModal = (detail: InventoryOrderDetail | null) => {
+        setDetail(detail);
+        setIsDetailModalOpen(true);
+    };
 
     const handleOpenPaymentModal = (payment: InventoryOrderPayment | null) => {
         setPayment(payment);
         setIsPaymentModalOpen(true);
+    };
+
+    const handleUpdateDetails = (detail: InventoryOrderDetail) => {
+        const index = details.findIndex((p) => p.id === detail.id);
+        setDetail(detail);
+
+        if (index < 0) {
+            setDetails([...details, detail]);
+            return;
+        }
+
+        setDetails([...details.slice(0, index), detail, ...details.slice(index + 1)]);
     };
 
     const handleUpdatePayments = (payment: InventoryOrderPayment) => {
@@ -44,6 +68,36 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
         }
 
         setPayments([...payments.slice(0, index), payment, ...payments.slice(index + 1)]);
+    };
+
+    const handleDeleteDetail = async ({ id }: InventoryOrderDetail) => {
+        try {
+            const body = { id };
+
+            const result = await fetch(`/api/inventory-orders/${order?.id}/details`, { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setDetails(details.filter((d) => d.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted Inventory Order Item.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
+        }
     };
 
     const handleDeletePayment = async ({ id }: InventoryOrderPayment) => {
@@ -87,7 +141,7 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
     }, [totalPayment, order]);
 
     return (
-        <section>
+        <section className="space-y-4">
             {/* <ComponentsModalInventoryOrder isOpen={isModalOpen} onToggleOpen={setModalOpen} order={order} suppliers={suppliers} onUpdateOrders={handleUpdateOrders} /> */}
 
             <div className="grid grid-cols-2 gap-4">
@@ -148,7 +202,22 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
             <div className="flex items-center justify-center">
                 <div className="w-full rounded-lg border border-white-light bg-white shadow-[4px_6px_10px_-3px_#edf0f2] dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:shadow-none">
                     <div className="px-6 py-7">
-                        <ComponentsTablesInventoryOrderDetails order={order} inventories={inventories} />
+                        <ComponentsTablesInventoryOrderDetails
+                            order={order}
+                            details={details}
+                            onToggleOpenDiscountModal={setIsDiscountModalOpen}
+                            onToggleOpenDetailModal={handleOpenDetailModal}
+                            onDeleteDetail={handleDeleteDetail}
+                        />
+                        <ComponentsModalInventoryOrderDiscount isOpen={isDiscountModalOpen} onToggleOpen={setIsDiscountModalOpen} order={order} />
+                        <ComponentsModalInventoryOrderDetail
+                            isOpen={isDetailModalOpen}
+                            onToggleOpen={setIsDetailModalOpen}
+                            order={order}
+                            detail={detail}
+                            inventories={inventories}
+                            onUpdateDetails={handleUpdateDetails}
+                        />
                     </div>
                 </div>
             </div>

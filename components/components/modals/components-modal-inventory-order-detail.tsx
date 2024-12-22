@@ -3,7 +3,7 @@
 import IconX from '@/components/icon/icon-x';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
 import React, { Fragment, useEffect, useState } from 'react';
-import type { InventoryOrderDetail } from '@/components/tables/components-tables-inventory-order-details';
+import type { InventoryOrderDetail } from '@/components/pages/components-pages-order-detail';
 import type { InventoryOrder } from '@/app/(defaults)/inventory-orders/[id]/page';
 import type { Inventory } from '@prisma/client';
 import { useForm, Controller } from 'react-hook-form';
