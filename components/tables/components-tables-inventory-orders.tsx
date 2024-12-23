@@ -98,11 +98,6 @@ const ComponentsTablesInventoryOrders = ({ orders, suppliers }: ComponentsTables
                                                     <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                                 </button>
                                             </Tippy>
-                                            <Tippy content="Delete">
-                                                <button type="button" onClick={() => setModalOpen(true)}>
-                                                    <IconTrashLines className="m-auto" />
-                                                </button>
-                                            </Tippy>
                                         </td>
                                     </tr>
                                 );
