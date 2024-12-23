@@ -95,6 +95,7 @@ CREATE TABLE `InventoryOrder` (
     `discount` BIGINT NOT NULL DEFAULT 0,
     `tax` BIGINT NOT NULL DEFAULT 0,
     `total` BIGINT NOT NULL DEFAULT 0,
+    `totalPayment` BIGINT NOT NULL DEFAULT 0,
     `timestamp` DATETIME(3) NOT NULL,
     `status` ENUM('COMPLETED', 'INCOMPLETE') NOT NULL DEFAULT 'INCOMPLETE',
     `supplierId` INTEGER NOT NULL,
