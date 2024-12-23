@@ -1,5 +1,5 @@
 'use client';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
@@ -36,6 +36,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getTranslation } from '@/i18n';
 
 const Header = () => {
+    const session = useSession();
     const pathname = usePathname();
     const dispatch = useDispatch();
     const router = useRouter();
@@ -85,62 +86,11 @@ const Header = () => {
         router.refresh();
     };
 
-    function createMarkup(messages: any) {
-        return { __html: messages };
-    }
-    const [messages, setMessages] = useState([
-        {
-            id: 1,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-success-light dark:bg-success text-success dark:text-success-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>',
-            title: 'Congratulations!',
-            message: 'Your OS has been updated.',
-            time: '1hr',
-        },
-        {
-            id: 2,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-info-light dark:bg-info text-info dark:text-info-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>',
-            title: 'Did you know?',
-            message: 'You can switch between artboards.',
-            time: '2hr',
-        },
-        {
-            id: 3,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-danger-light dark:bg-danger text-danger dark:text-danger-light"> <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>',
-            title: 'Something went wrong!',
-            message: 'Send Reposrt',
-            time: '2days',
-        },
-        {
-            id: 4,
-            image: '<span class="grid place-content-center w-9 h-9 rounded-full bg-warning-light dark:bg-warning text-warning dark:text-warning-light"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">    <circle cx="12" cy="12" r="10"></circle>    <line x1="12" y1="8" x2="12" y2="12"></line>    <line x1="12" y1="16" x2="12.01" y2="16"></line></svg></span>',
-            title: 'Warning',
-            message: 'Your password strength is low.',
-            time: '5days',
-        },
-    ]);
-
-    const removeMessage = (value: number) => {
-        setMessages(messages.filter((user) => user.id !== value));
-    };
-
     const [notifications, setNotifications] = useState([
         {
             id: 1,
-            profile: 'user-profile.jpeg',
-            message: '<strong class="text-sm mr-1">John Doe</strong>invite you to <strong>Prototyping</strong>',
+            message: '<strong class="text-sm mr-1">Benang Putih</strong>stock is below minimum quantity. Please order soon.',
             time: '45 min ago',
-        },
-        {
-            id: 2,
-            profile: 'profile-34.jpeg',
-            message: '<strong class="text-sm mr-1">Adam Nolan</strong>mentioned you to <strong>UX Basics</strong>',
-            time: '9h Ago',
-        },
-        {
-            id: 3,
-            profile: 'profile-16.jpeg',
-            message: '<strong class="text-sm mr-1">Anna Morgan</strong>Upload a file',
-            time: '9h Ago',
         },
     ]);
 
@@ -168,53 +118,7 @@ const Header = () => {
                         </button>
                     </div>
 
-                    <div className="hidden ltr:mr-2 rtl:ml-2 sm:block">
-                        <ul className="flex items-center space-x-2 rtl:space-x-reverse dark:text-[#d0d2d6]">
-                            <li>
-                                <Link href="/apps/calendar" className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60">
-                                    <IconCalendar />
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/apps/todolist" className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60">
-                                    <IconEdit />
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/apps/chat" className="block rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:hover:bg-dark/60">
-                                    <IconChatNotification />
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                    <div className="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
-                        <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
-                            <form
-                                className={`${search && '!block'} absolute inset-x-0 top-1/2 z-10 mx-4 hidden -translate-y-1/2 sm:relative sm:top-0 sm:mx-0 sm:block sm:translate-y-0`}
-                                onSubmit={() => setSearch(false)}
-                            >
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        className="peer form-input bg-gray-100 placeholder:tracking-widest ltr:pl-9 ltr:pr-9 rtl:pl-9 rtl:pr-9 sm:bg-transparent ltr:sm:pr-4 rtl:sm:pl-4"
-                                        placeholder="Search..."
-                                    />
-                                    <button type="button" className="absolute inset-0 h-9 w-9 appearance-none peer-focus:text-primary ltr:right-auto rtl:left-auto">
-                                        <IconSearch className="mx-auto" />
-                                    </button>
-                                    <button type="button" className="absolute top-1/2 block -translate-y-1/2 hover:opacity-80 ltr:right-2 rtl:left-2 sm:hidden" onClick={() => setSearch(false)}>
-                                        <IconXCircle />
-                                    </button>
-                                </div>
-                            </form>
-                            <button
-                                type="button"
-                                onClick={() => setSearch(!search)}
-                                className="search_btn rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 dark:bg-dark/40 dark:hover:bg-dark/60 sm:hidden"
-                            >
-                                <IconSearch className="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" />
-                            </button>
-                        </div>
+                    <div className="flex items-center justify-end space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
                         <div>
                             {themeConfig.theme === 'light' ? (
                                 <button
@@ -256,89 +160,6 @@ const Header = () => {
                             <Dropdown
                                 offset={[0, 8]}
                                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                button={i18n.language && <img className="h-5 w-5 rounded-full object-cover" src={`/assets/images/flags/${i18n.language.toUpperCase()}.svg`} alt="flag" />}
-                            >
-                                <ul className="grid w-[280px] grid-cols-2 gap-2 !px-2 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
-                                    {themeConfig.languageList.map((item: any) => {
-                                        return (
-                                            <li key={item.code}>
-                                                <button
-                                                    type="button"
-                                                    className={`flex w-full hover:text-primary ${i18n.language === item.code ? 'bg-primary/10 text-primary' : ''}`}
-                                                    onClick={() => {
-                                                        i18n.changeLanguage(item.code);
-                                                        setLocale(item.code);
-                                                    }}
-                                                >
-                                                    <img src={`/assets/images/flags/${item.code.toUpperCase()}.svg`} alt="flag" className="h-5 w-5 rounded-full object-cover" />
-                                                    <span className="ltr:ml-3 rtl:mr-3">{item.name}</span>
-                                                </button>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </Dropdown>
-                        </div>
-                        <div className="dropdown shrink-0">
-                            <Dropdown
-                                offset={[0, 8]}
-                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                button={<IconMailDot />}
-                            >
-                                <ul className="w-[300px] !py-0 text-xs text-dark dark:text-white-dark sm:w-[375px]">
-                                    <li className="mb-5" onClick={(e) => e.stopPropagation()}>
-                                        <div className="relative !h-[68px] w-full overflow-hidden rounded-t-md p-5 text-white hover:!bg-transparent">
-                                            <div className="bg- absolute inset-0 h-full w-full bg-[url(/assets/images/menu-heade.jpg)] bg-cover bg-center bg-no-repeat"></div>
-                                            <h4 className="relative z-10 text-lg font-semibold">Messages</h4>
-                                        </div>
-                                    </li>
-                                    {messages.length > 0 ? (
-                                        <>
-                                            <li onClick={(e) => e.stopPropagation()}>
-                                                {messages.map((message) => {
-                                                    return (
-                                                        <div key={message.id} className="flex items-center px-5 py-3">
-                                                            <div dangerouslySetInnerHTML={createMarkup(message.image)}></div>
-                                                            <span className="px-3 dark:text-gray-500">
-                                                                <div className="text-sm font-semibold dark:text-white-light/90">{message.title}</div>
-                                                                <div>{message.message}</div>
-                                                            </span>
-                                                            <span className="whitespace-pre rounded bg-white-dark/20 px-1 font-semibold text-dark/60 ltr:ml-auto ltr:mr-2 rtl:ml-2 rtl:mr-auto dark:text-white-dark">
-                                                                {message.time}
-                                                            </span>
-                                                            <button type="button" className="text-neutral-300 hover:text-danger" onClick={() => removeMessage(message.id)}>
-                                                                <IconXCircle />
-                                                            </button>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </li>
-                                            <li className="mt-5 border-t border-white-light text-center dark:border-white/10">
-                                                <button type="button" className="group !h-[48px] justify-center !py-4 font-semibold text-primary dark:text-gray-400">
-                                                    <span className="group-hover:underline ltr:mr-1 rtl:ml-1">VIEW ALL ACTIVITIES</span>
-                                                    <IconArrowLeft className="transition duration-300 group-hover:translate-x-1 ltr:ml-1 rtl:mr-1" />
-                                                </button>
-                                            </li>
-                                        </>
-                                    ) : (
-                                        <li className="mb-5" onClick={(e) => e.stopPropagation()}>
-                                            <button type="button" className="!grid min-h-[200px] place-content-center text-lg hover:!bg-transparent">
-                                                <div className="mx-auto mb-4 rounded-full text-white ring-4 ring-primary/30">
-                                                    <IconInfoCircle fill={true} className="h-10 w-10" />
-                                                </div>
-                                                No data available.
-                                            </button>
-                                        </li>
-                                    )}
-                                </ul>
-                            </Dropdown>
-                        </div>
-                        <div className="dropdown shrink-0">
-                            <Dropdown
-                                offset={[0, 8]}
-                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
                                 btnClassName="relative block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
                                 button={
                                     <span>
@@ -363,12 +184,6 @@ const Header = () => {
                                                 return (
                                                     <li key={notification.id} className="dark:text-white-light/90" onClick={(e) => e.stopPropagation()}>
                                                         <div className="group flex items-center px-4 py-2">
-                                                            <div className="grid place-content-center rounded">
-                                                                <div className="relative h-12 w-12">
-                                                                    <img className="h-12 w-12 rounded-full object-cover" alt="profile" src={`/assets/images/${notification.profile}`} />
-                                                                    <span className="absolute bottom-0 right-[6px] block h-2 w-2 rounded-full bg-success"></span>
-                                                                </div>
-                                                            </div>
                                                             <div className="flex flex-auto ltr:pl-3 rtl:pr-3">
                                                                 <div className="ltr:pr-3 rtl:pl-3">
                                                                     <h6
@@ -376,7 +191,7 @@ const Header = () => {
                                                                             __html: notification.message,
                                                                         }}
                                                                     ></h6>
-                                                                    <span className="block text-xs font-normal dark:text-gray-500">{notification.time}</span>
+                                                                    <span className="block mt-1 text-xs font-normal dark:text-gray-500">{notification.time}</span>
                                                                 </div>
                                                                 <button
                                                                     type="button"
@@ -421,32 +236,17 @@ const Header = () => {
                                         <div className="flex items-center px-4 py-4">
                                             <img className="h-10 w-10 rounded-md object-cover" src="/assets/images/user-profile.jpeg" alt="userProfile" />
                                             <div className="truncate ltr:pl-4 rtl:pr-4">
-                                                <h4 className="text-base">
-                                                    John Doe
-                                                    <span className="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">Pro</span>
-                                                </h4>
+                                                <h4 className="text-base">{session.data?.user.name}</h4>
                                                 <button type="button" className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white">
-                                                    johndoe@gmail.com
+                                                    {session.data?.user.email}
                                                 </button>
                                             </div>
                                         </div>
                                     </li>
                                     <li>
-                                        <Link href="/users/profile" className="dark:hover:text-white">
+                                        <Link href="/" className="dark:hover:text-white">
                                             <IconUser className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                             Profile
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/apps/mailbox" className="dark:hover:text-white">
-                                            <IconMail className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
-                                            Inbox
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link href="/auth/boxed-lockscreen" className="dark:hover:text-white">
-                                            <IconLockDots className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
-                                            Lock Screen
                                         </Link>
                                     </li>
                                     <li className="border-t border-white-light dark:border-white-light/10">
