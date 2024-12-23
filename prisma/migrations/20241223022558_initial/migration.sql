@@ -114,7 +114,8 @@ CREATE TABLE `_RoleToUser` (
     `B` INTEGER NOT NULL,
 
     UNIQUE INDEX `_RoleToUser_AB_unique`(`A`, `B`),
-    INDEX `_RoleToUser_B_index`(`B`)
+    INDEX `_RoleToUser_B_index`(`B`),
+    CONSTRAINT PK_RoleUser PRIMARY KEY (`A`, `B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
