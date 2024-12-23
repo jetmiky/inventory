@@ -48,6 +48,10 @@ export async function PUT(request: NextRequest) {
 
     if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
 
+    const details = await prisma.inventoryOrderDetail.findMany({ where: { inventoryOrderId: validation.data.id } });
+    let total = details.reduce((total, detail) => total + detail.quantity * Number(detail.price), 0);
+    total = total - (validation.data.discount || 0) + (validation.data.tax || 0);
+
     const order = await prisma.inventoryOrder.update({
         data: {
             invoice: validation.data?.invoice,
@@ -55,6 +59,7 @@ export async function PUT(request: NextRequest) {
             supplierId: validation.data?.supplierId,
             discount: validation.data?.discount,
             tax: validation.data?.tax,
+            total,
         },
         include: { supplier: true },
         where: { id: validation.data.id },

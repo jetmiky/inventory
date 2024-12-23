@@ -49,7 +49,7 @@ const ComponentsModalInventoryOrder = ({ order, suppliers, isOpen, onToggleOpen,
             onUpdateOrders(order);
 
             toast.fire({
-                title: method === 'POST' ? 'Successfuly added record inventory usage.' : 'Sucessfully edited inventory usage',
+                title: method === 'POST' ? 'Successfuly added record inventory order.' : 'Sucessfully edited inventory order',
                 toast: true,
                 position: 'bottom-right',
                 showConfirmButton: false,
@@ -102,25 +102,27 @@ const ComponentsModalInventoryOrder = ({ order, suppliers, isOpen, onToggleOpen,
                                 </div>
                                 <div className="px-5 pt-3 pb-6">
                                     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-                                        <div>
-                                            <label htmlFor="supplier" className="text-sm">
-                                                Supplier
-                                            </label>
-                                            <Controller
-                                                name="supplierId"
-                                                control={control}
-                                                render={({ field: { value, onChange } }) => (
-                                                    <Select
-                                                        options={supplierOptions}
-                                                        value={supplierOptions.find((opt) => opt.value === value)}
-                                                        onChange={(val) => onChange(val?.value)}
-                                                        className="text-sm"
-                                                        placeholder="Choose supplier ..."
-                                                        required
-                                                    />
-                                                )}
-                                            />
-                                        </div>
+                                        {suppliers.length ? (
+                                            <div>
+                                                <label htmlFor="supplier" className="text-sm">
+                                                    Supplier
+                                                </label>
+                                                <Controller
+                                                    name="supplierId"
+                                                    control={control}
+                                                    render={({ field: { value, onChange } }) => (
+                                                        <Select
+                                                            options={supplierOptions}
+                                                            value={supplierOptions.find((opt) => opt.value === value)}
+                                                            onChange={(val) => onChange(val?.value)}
+                                                            className="text-sm"
+                                                            placeholder="Choose supplier ..."
+                                                            required
+                                                        />
+                                                    )}
+                                                />
+                                            </div>
+                                        ) : null}
                                         <div>
                                             <label htmlFor="invoice" className="text-sm">
                                                 Invoice Number

@@ -10,6 +10,10 @@ import React, { useState } from 'react';
 import ComponentsModalSupplier from '../components/modals/components-modal-supplier';
 import type { Prisma } from '@prisma/client';
 import ComponentsModalSupplierPaymentMethod from '../components/modals/components-modal-supplier-payment-method';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 export type Supplier = Prisma.SupplierGetPayload<{ include: { methods: true } }>;
 
@@ -18,6 +22,7 @@ type ComponentsTablesSuppliersProps = {
 };
 
 const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps) => {
+    const [supplierList, setSupplierList] = useState<Supplier[]>(suppliers);
     const [isSupplierModalOpen, setSupplierModalOpen] = useState<boolean>(false);
     const [isPaymentMethodModalOpen, setIsPaymentMethodModalOpen] = useState<boolean>(false);
     const [supplier, setSupplier] = useState<Supplier | null>(null);
@@ -33,15 +38,45 @@ const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps
     };
 
     const handleUpdateSuppliers = (supplier: Supplier) => {
-        const index = suppliers.findIndex((s) => s.id === supplier.id);
+        const index = supplierList.findIndex((s) => s.id === supplier.id);
         setSupplier(supplier);
 
         if (index < 0) {
-            suppliers.push(supplier);
+            setSupplierList([...supplierList, supplier]);
             return;
         }
 
-        suppliers[index] = supplier;
+        setSupplierList([...supplierList.slice(0, index), supplier, ...supplierList.slice(index + 1)]);
+    };
+
+    const handleDeleteSupplier = async ({ id }: Supplier) => {
+        try {
+            const body = { id };
+
+            const result = await fetch('/api/suppliers', { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setSupplierList(supplierList.filter((s) => s.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted supplier.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
+        }
     };
 
     return (
@@ -71,7 +106,7 @@ const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps
                         </tr>
                     </thead>
                     <tbody>
-                        {suppliers.map((supplier) => {
+                        {supplierList.map((supplier) => {
                             return (
                                 <tr key={supplier.id}>
                                     <td>{`SP00${supplier.id}`}</td>
@@ -91,7 +126,7 @@ const ComponentsTablesSuppliers = ({ suppliers }: ComponentsTablesSuppliersProps
                                             </button>
                                         </Tippy>
                                         <Tippy content="Delete">
-                                            <button type="button" onClick={() => setSupplierModalOpen(true)}>
+                                            <button type="button" onClick={() => handleDeleteSupplier(supplier)}>
                                                 <IconTrashLines className="m-auto" />
                                             </button>
                                         </Tippy>

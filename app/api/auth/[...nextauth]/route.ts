@@ -22,7 +22,7 @@ const config = {
 
             async authorize(credentials, req) {
                 const user = await prisma.user.findUnique({
-                    where: { email: credentials?.email },
+                    where: { email: credentials?.email, deletedAt: null },
                     include: { roles: true },
                 });
 

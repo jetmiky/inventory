@@ -8,6 +8,10 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import ComponentsModalInventoryUsage from '../components/modals/components-modal-inventory-usage';
 import type { Inventory, Prisma, User } from '@prisma/client';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 export type InventoryUsage = Prisma.InventoryUsageGetPayload<{ include: { inventory: true; user: true } }>;
 
@@ -18,6 +22,8 @@ type ComponentsTablesInventoryUsagesProps = {
 };
 
 const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: ComponentsTablesInventoryUsagesProps) => {
+    const [usageList, setUsageList] = useState<InventoryUsage[]>(usages);
+    const [inventoryList, setInventoryList] = useState<Inventory[]>(inventories);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [usage, setUsage] = useState<InventoryUsage | null>(null);
 
@@ -27,20 +33,56 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
     };
 
     const handleUpdateUsages = (usage: InventoryUsage) => {
-        const index = usages.findIndex((t) => t.id === usage.id);
+        const index = usageList.findIndex((u) => u.id === usage.id);
         setUsage(usage);
+        handleUpdateInventories(usage.inventory);
 
         if (index < 0) {
-            usages.push(usage);
+            setUsageList([usage, ...usageList]);
             return;
         }
 
-        usages[index] = usage;
+        setUsageList([...usageList.slice(0, index), usage, ...usageList.slice(index + 1)]);
+    };
+
+    const handleUpdateInventories = (inventory: Inventory) => {
+        const index = inventoryList.findIndex((i) => i.id === inventory.id);
+        setInventoryList([...inventoryList.slice(0, index), inventory, ...inventoryList.slice(index + 1)]);
+    };
+
+    const handleDeleteUsage = async ({ id }: InventoryUsage) => {
+        try {
+            const body = { id };
+
+            const result = await fetch('/api/inventory-usages', { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setUsageList(usageList.filter((u) => u.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted Inventory Usage.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
+        }
     };
 
     return (
         <div>
-            <ComponentsModalInventoryUsage isOpen={isModalOpen} onToggleOpen={setModalOpen} usage={usage} onUpdateUsages={handleUpdateUsages} inventories={inventories} users={users} />
+            <ComponentsModalInventoryUsage isOpen={isModalOpen} onToggleOpen={setModalOpen} usage={usage} onUpdateUsages={handleUpdateUsages} inventories={inventoryList} users={users} />
 
             <div className="flex justify-between items-center mb-7">
                 <h2 className="text-lg font-bold">Inventory Usages</h2>
@@ -63,8 +105,8 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
                         </tr>
                     </thead>
                     <tbody>
-                        {usages.length ? (
-                            usages.map((usage) => {
+                        {usageList.length ? (
+                            usageList.map((usage) => {
                                 return (
                                     <tr key={usage.id}>
                                         <td className="max-w-1 whitespace-nowrap">{usage.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
@@ -78,7 +120,7 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
                                                 </button>
                                             </Tippy>
                                             <Tippy content="Delete">
-                                                <button type="button" onClick={() => setModalOpen(true)}>
+                                                <button type="button" onClick={() => handleDeleteUsage(usage)}>
                                                     <IconTrashLines className="m-auto" />
                                                 </button>
                                             </Tippy>

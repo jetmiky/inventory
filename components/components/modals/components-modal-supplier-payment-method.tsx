@@ -9,8 +9,12 @@ import 'tippy.js/dist/tippy.css';
 import { Transition, Dialog, DialogPanel, TransitionChild } from '@headlessui/react';
 import type { SupplierPaymentMethod } from '@prisma/client';
 import type { Supplier } from '@/components/tables/components-tables-suppliers';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 type ComponentsModalSuppllierPaymentMethodProps = {
     supplier: Supplier | null;
@@ -24,9 +28,14 @@ type PaymentMethodForm = {
 };
 
 const ComponentsModalSupplierPaymentMethod = ({ supplier, isOpen, onToggleOpen }: ComponentsModalSuppllierPaymentMethodProps) => {
+    const [methods, setMethods] = useState<SupplierPaymentMethod[]>(supplier?.methods || []);
     const [selectedMethod, setSelectedMethod] = useState<SupplierPaymentMethod | null>(null);
     const { register, handleSubmit, setValue } = useForm<PaymentMethodForm>();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    useEffect(() => {
+        setMethods(supplier?.methods || []);
+    }, [supplier]);
 
     const handleSelectMethod = (method: SupplierPaymentMethod) => {
         setSelectedMethod(method);
@@ -50,18 +59,50 @@ const ComponentsModalSupplierPaymentMethod = ({ supplier, isOpen, onToggleOpen }
             const response = await fetch(`/api/suppliers/${supplier?.id}/payment-methods`, { method, body: JSON.stringify(body) });
             const paymentMethod: SupplierPaymentMethod = await response.json();
 
-            const index = supplier?.methods.findIndex((m) => m.id === paymentMethod.id) as number;
+            const index = methods.findIndex((m) => m.id === paymentMethod.id);
+
             if (index < 0) {
-                supplier?.methods.push(paymentMethod);
-            } else {
-                if (supplier?.methods) supplier.methods[index] = paymentMethod;
+                setMethods([...methods, paymentMethod]);
+                return;
             }
+
+            setMethods([...methods.slice(0, index), paymentMethod, ...methods.slice(index + 1)]);
 
             handleResetForm();
         } catch (error) {
             console.error(error);
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleDeletePaymentMethod = async ({ id }: SupplierPaymentMethod) => {
+        try {
+            const body = { id };
+
+            const result = await fetch(`/api/suppliers/${supplier?.id}/payment-methods`, { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setMethods(methods.filter((s) => s.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted payment method.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
         }
     };
 
@@ -107,8 +148,8 @@ const ComponentsModalSupplierPaymentMethod = ({ supplier, isOpen, onToggleOpen }
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {supplier?.methods?.length ? (
-                                                    supplier?.methods?.map((method) => (
+                                                {methods.length ? (
+                                                    methods.map((method) => (
                                                         <tr key={method.id}>
                                                             <td>{method.name}</td>
                                                             <td>{method.account}</td>
@@ -119,7 +160,7 @@ const ComponentsModalSupplierPaymentMethod = ({ supplier, isOpen, onToggleOpen }
                                                                     </button>
                                                                 </Tippy>
                                                                 <Tippy content="Delete">
-                                                                    <button type="button">
+                                                                    <button type="button" onClick={() => handleDeletePaymentMethod(method)}>
                                                                         <IconTrashLines className="m-auto" />
                                                                     </button>
                                                                 </Tippy>

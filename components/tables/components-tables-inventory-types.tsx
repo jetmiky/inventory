@@ -8,12 +8,17 @@ import 'tippy.js/dist/tippy.css';
 import React, { useState } from 'react';
 import type { InventoryType } from '@prisma/client';
 import ComponentsModalInventoryTypes from '../components/modals/components-modal-inventory-types';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const toast = withReactContent(Swal);
 
 type ComponentsTablesInventoryTypesProps = {
     types: InventoryType[];
 };
 
 const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryTypesProps) => {
+    const [typeList, setTypeList] = useState<InventoryType[]>(types);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [type, setType] = useState<InventoryType | null>(null);
 
@@ -23,15 +28,45 @@ const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryType
     };
 
     const handleUpdateTypes = (type: InventoryType) => {
-        const index = types.findIndex((t) => t.id === type.id);
+        const index = typeList.findIndex((b) => b.id === type.id);
         setType(type);
 
         if (index < 0) {
-            types.push(type);
+            setTypeList([...typeList, type]);
             return;
         }
 
-        types[index] = type;
+        setTypeList([...typeList.slice(0, index), type, ...typeList.slice(index + 1)]);
+    };
+
+    const handleDeleteType = async ({ id }: InventoryType) => {
+        try {
+            const body = { id };
+
+            const result = await fetch('/api/types', { method: 'DELETE', body: JSON.stringify(body) });
+            const response: { success: boolean; message: string } = await result.json();
+
+            if (!response.success) throw new Error(response.message);
+
+            setTypeList(typeList.filter((b) => b.id !== id));
+            toast.fire({
+                title: 'Successfuly deleted inventory type.',
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 3000,
+                showCloseButton: true,
+            });
+        } catch (error) {
+            toast.fire({
+                title: `${error}`,
+                toast: true,
+                position: 'bottom-right',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+            });
+        }
     };
 
     return (
@@ -58,7 +93,7 @@ const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryType
                         </tr>
                     </thead>
                     <tbody>
-                        {types.map((type) => {
+                        {typeList.map((type) => {
                             return (
                                 <tr key={type.id}>
                                     <td className="max-w-1 whitespace-nowrap">{`IT00${type.id}`}</td>
@@ -71,7 +106,7 @@ const ComponentsTablesInventoryTypes = ({ types }: ComponentsTablesInventoryType
                                             </button>
                                         </Tippy>
                                         <Tippy content="Delete">
-                                            <button type="button" onClick={() => setModalOpen(true)}>
+                                            <button type="button" onClick={() => handleDeleteType(type)}>
                                                 <IconTrashLines className="m-auto" />
                                             </button>
                                         </Tippy>

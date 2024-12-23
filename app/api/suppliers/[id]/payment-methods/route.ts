@@ -13,6 +13,10 @@ const updatePaymentMethodSchema = z.object({
     account: z.string().min(1).max(191),
 });
 
+const deletePaymentMethodSchema = z.object({
+    id: z.number().min(1),
+});
+
 export async function GET(request: NextRequest) {
     const supplierId = request.nextUrl.searchParams.get('id') as string;
     const methods = await prisma.supplierPaymentMethod.findMany({
@@ -58,4 +62,24 @@ export async function PUT(request: NextRequest) {
     });
 
     return NextResponse.json(supplier, { status: 200 });
+}
+
+export async function DELETE(request: NextRequest) {
+    const body = await request.json();
+    const validation = deletePaymentMethodSchema.safeParse(body);
+
+    if (!validation.success) return NextResponse.json(validation.error.errors, { status: 400 });
+
+    const method = await prisma.supplierPaymentMethod.findFirst({
+        where: { id: validation.data.id },
+        include: { payments: true },
+    });
+
+    if (method?.payments?.length) {
+        return NextResponse.json({ message: `Cannot delete payment method, as already have ${method?.payments?.length} inventory order payment(s).`, success: false }, { status: 409 });
+    }
+
+    await prisma.supplierPaymentMethod.delete({ where: { id: validation.data.id } });
+
+    return NextResponse.json({ message: 'Supplier Payment Method deleted successfully', success: true }, { status: 200 });
 }
