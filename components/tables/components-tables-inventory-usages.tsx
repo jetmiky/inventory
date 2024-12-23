@@ -109,7 +109,7 @@ const ComponentsTablesInventoryUsages = ({ usages, inventories, users }: Compone
                             usageList.map((usage) => {
                                 return (
                                     <tr key={usage.id}>
-                                        <td className="max-w-1 whitespace-nowrap">{usage.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                                        <td>{usage.timestamp.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
                                         <td>{usage?.inventory.name}</td>
                                         <td className="text-center max-w-1 whitespace-nowrap">{usage.quantity}</td>
                                         <td>{usage?.user.name}</td>

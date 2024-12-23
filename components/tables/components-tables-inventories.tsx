@@ -104,7 +104,7 @@ const ComponentsTablesInventories = ({ inventories, types, brands }: ComponentsT
                         {inventoryList.map((inventory) => {
                             return (
                                 <tr key={inventory.id}>
-                                    <td className="max-w-1 whitespace-nowrap">{`IN00${inventory.id}`}</td>
+                                    <td>{`IN00${inventory.id}`}</td>
                                     <td>{inventory.type.name}</td>
                                     <td>{inventory.brand.name}</td>
                                     <td>{inventory.name}</td>
