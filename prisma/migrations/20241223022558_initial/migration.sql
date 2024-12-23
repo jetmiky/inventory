@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE `User` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
@@ -8,89 +8,78 @@ CREATE TABLE `User` (
     `password` VARCHAR(191) NOT NULL,
     `deletedAt` DATETIME(3) NULL,
 
-    UNIQUE INDEX `User_email_key`(`email`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `User_email_key`(`email`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Role` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `usid` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Role_usid_key`(`usid`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `Role_usid_key`(`usid`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `InventoryType` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `InventoryType_name_key`(`name`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `InventoryType_name_key`(`name`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `InventoryBrand` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `InventoryBrand_name_key`(`name`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `InventoryBrand_name_key`(`name`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Inventory` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
     `stock` INTEGER NOT NULL DEFAULT 0,
     `minimumStock` INTEGER NOT NULL DEFAULT 1,
     `brandId` INTEGER NOT NULL,
-    `typeId` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `typeId` INTEGER NOT NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `InventoryUsage` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `quantity` INTEGER NOT NULL,
     `timestamp` DATETIME(3) NOT NULL,
     `inventoryId` INTEGER NOT NULL,
-    `userId` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `userId` INTEGER NOT NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Supplier` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Supplier_name_key`(`name`),
-    PRIMARY KEY (`id`)
+    UNIQUE INDEX `Supplier_name_key`(`name`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `SupplierPaymentMethod` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `account` VARCHAR(191) NOT NULL,
-    `supplierId` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `supplierId` INTEGER NOT NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `InventoryOrder` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `invoice` VARCHAR(191) NOT NULL,
     `discount` BIGINT NOT NULL DEFAULT 0,
     `tax` BIGINT NOT NULL DEFAULT 0,
@@ -98,31 +87,25 @@ CREATE TABLE `InventoryOrder` (
     `totalPayment` BIGINT NOT NULL DEFAULT 0,
     `timestamp` DATETIME(3) NOT NULL,
     `status` ENUM('COMPLETED', 'INCOMPLETE') NOT NULL DEFAULT 'INCOMPLETE',
-    `supplierId` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `supplierId` INTEGER NOT NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `InventoryOrderPayment` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `total` BIGINT NOT NULL,
     `timestamp` DATETIME(3) NOT NULL,
     `inventoryOrderId` INTEGER NOT NULL,
-    `supplierPaymentMethodId` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `supplierPaymentMethodId` INTEGER NOT NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `InventoryOrderDetail` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `quantity` INTEGER NOT NULL,
     `price` BIGINT NOT NULL,
     `inventoryOrderId` INTEGER NOT NULL,
-    `inventoryId` INTEGER NOT NULL,
-
-    PRIMARY KEY (`id`)
+    `inventoryId` INTEGER NOT NULL
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
