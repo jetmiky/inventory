@@ -31,16 +31,16 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
     const [detail, setDetail] = useState<InventoryOrderDetail | null>(null);
     const [payments, setPayments] = useState<InventoryOrderPayment[]>(order?.payments || []);
     const [payment, setPayment] = useState<InventoryOrderPayment | null>(null);
+    const [discount, setDiscount] = useState<number>(Number(order.discount) || 0);
+    const [tax, setTax] = useState<number>(Number(order.tax) || 0);
+    const [totalBill, setTotalBill] = useState<number>(Number(order.total) || 0);
     const [totalPayment, setTotalPayment] = useState<number>(0);
     const [progress, setProgress] = useState<number>(0);
+    const [isStatusCompleted, setIsStatusCompleted] = useState<boolean>(order.status === 'COMPLETED');
     const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
     const [isDiscountModalOpen, setIsDiscountModalOpen] = useState<boolean>(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
-
-    const handleUpdateOrder = (order: InventoryOrder) => {
-        setInventoryOrder(order);
-    };
 
     const handleOpenDetailModal = (detail: InventoryOrderDetail | null) => {
         setDetail(detail);
@@ -50,6 +50,11 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
     const handleOpenPaymentModal = (payment: InventoryOrderPayment | null) => {
         setPayment(payment);
         setIsPaymentModalOpen(true);
+    };
+
+    const handleUpdateDiscount = (discount: number, tax: number) => {
+        setDiscount(discount);
+        setTax(tax);
     };
 
     const handleUpdateDetails = (detail: InventoryOrderDetail) => {
@@ -137,14 +142,22 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
     };
 
     useEffect(() => {
+        const total = details.reduce((total, detail) => total + detail.quantity * Number(detail.price), 0);
+        setTotalBill(total - discount + tax);
+    }, [details, tax, discount]);
+
+    useEffect(() => {
         setTotalPayment(payments.reduce((total, payment) => total + Number(payment.total), 0));
     }, [payments]);
 
     useEffect(() => {
-        if (Number(order.total)) {
-            setProgress(Math.round((totalPayment / Number(order.total)) * 100));
+        if (totalBill) {
+            const progress = Math.round((totalPayment / totalBill) * 100);
+            setProgress(progress);
+
+            if (progress === 100) setIsStatusCompleted(true);
         }
-    }, [totalPayment, order]);
+    }, [totalPayment, totalBill]);
 
     return (
         <section className="space-y-4">
@@ -180,7 +193,7 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                     <div className="px-6 py-7 space-y-3">
                         <div>
                             <p className="text-sm text-gray-500">Total Bill</p>
-                            <p className="text-lg font-bold text-gray-800">Rp {formatThousands(inventoryOrder.total || 0, '.')}</p>
+                            <p className="text-lg font-bold text-gray-800">Rp {formatThousands(totalBill, '.')}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Total Payment</p>
@@ -197,10 +210,10 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                         <div>
                             <p className="text-sm text-gray-500 mb-2">Status</p>
                             <div>
-                                {order?.status === 'INCOMPLETE' ? (
-                                    <span className="badge bg-danger rounded-lg px-4 py-2 shadow-lg">INCOMPLETE</span>
-                                ) : (
+                                {isStatusCompleted ? (
                                     <span className="badge bg-primary rounded-lg px-4 py-2 shadow-lg">COMPLETED</span>
+                                ) : (
+                                    <span className="badge bg-danger rounded-lg px-4 py-2 shadow-lg">INCOMPLETE</span>
                                 )}
                             </div>
                         </div>
@@ -211,13 +224,15 @@ const ComponentsPagesOrderDetail = ({ order, inventories, methods }: ComponentsP
                 <div className="w-full rounded-lg border border-white-light bg-white shadow-[4px_6px_10px_-3px_#edf0f2] dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:shadow-none">
                     <div className="px-6 py-7">
                         <ComponentsTablesInventoryOrderDetails
-                            order={order}
                             details={details}
+                            total={totalBill}
+                            discount={discount}
+                            tax={tax}
                             onToggleOpenDiscountModal={setIsDiscountModalOpen}
                             onToggleOpenDetailModal={handleOpenDetailModal}
                             onDeleteDetail={handleDeleteDetail}
                         />
-                        <ComponentsModalInventoryOrderDiscount isOpen={isDiscountModalOpen} onToggleOpen={setIsDiscountModalOpen} order={order} />
+                        <ComponentsModalInventoryOrderDiscount isOpen={isDiscountModalOpen} onToggleOpen={setIsDiscountModalOpen} order={order} onUpdateDiscount={handleUpdateDiscount} />
                         <ComponentsModalInventoryOrderDetail
                             isOpen={isDetailModalOpen}
                             onToggleOpen={setIsDetailModalOpen}

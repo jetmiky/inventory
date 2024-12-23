@@ -102,7 +102,7 @@ const ComponentsModalInventoryOrder = ({ order, suppliers, isOpen, onToggleOpen,
                                 </div>
                                 <div className="px-5 pt-3 pb-6">
                                     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-                                        {suppliers.length && (
+                                        {suppliers.length ? (
                                             <div>
                                                 <label htmlFor="supplier" className="text-sm">
                                                     Supplier
@@ -122,7 +122,7 @@ const ComponentsModalInventoryOrder = ({ order, suppliers, isOpen, onToggleOpen,
                                                     )}
                                                 />
                                             </div>
-                                        )}
+                                        ) : null}
                                         <div>
                                             <label htmlFor="invoice" className="text-sm">
                                                 Invoice Number

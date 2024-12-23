@@ -15,6 +15,7 @@ type ComponentsModalInventoryOrderDiscountProps = {
     order: InventoryOrder | null;
     isOpen: boolean;
     onToggleOpen: (state: boolean) => void;
+    onUpdateDiscount: (discount: number, tax: number) => void;
 };
 
 type InventoryOrderDiscountForm = {
@@ -22,7 +23,7 @@ type InventoryOrderDiscountForm = {
     discount: string;
 };
 
-const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: ComponentsModalInventoryOrderDiscountProps) => {
+const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen, onUpdateDiscount }: ComponentsModalInventoryOrderDiscountProps) => {
     const { register, handleSubmit, setValue } = useForm<InventoryOrderDiscountForm>();
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -33,7 +34,8 @@ const ComponentsModalInventoryOrderDiscount = ({ order, isOpen, onToggleOpen }: 
             const body = { id: order?.id, tax: Number.parseInt(data.tax), discount: Number.parseInt(data.discount) };
 
             const response = await fetch('/api/inventory-orders', { method: 'PUT', body: JSON.stringify(body) });
-            const updatedOrder: InventoryOrder = await response.json();
+            const { discount, tax }: InventoryOrder = await response.json();
+            onUpdateDiscount(Number(discount), Number(tax));
 
             toast.fire({
                 title: 'Successfuly edited tax and discount.',
