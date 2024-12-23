@@ -2,6 +2,7 @@ import prisma from '@/prisma/client';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+// @ts-ignore
 BigInt.prototype.toJSON = function () {
     return this.toString();
 };
